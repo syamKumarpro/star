@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NumTrack Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06070d;
+  --bg2:#0a0d16;
+  --surf:#0f1220;
+  --surf2:#141827;
+  --surf3:#191e30;
+  --bdr:#1e2438;
+  --bdr2:#252d45;
+  --acc:#7c6af7;
+  --acc2:#5e49e8;
+  --acc3:rgba(124,106,247,.13);
+  --tel:#00d4a8;
+  --tel2:rgba(0,212,168,.12);
+  --amb:#ffb84d;
+  --amb2:rgba(255,184,77,.10);
+  --rose:#ff5fa0;
+  --rose2:rgba(255,95,160,.10);
+  --sky:#38bdf8;
+  --sky2:rgba(56,189,248,.10);
+  --red:#f0515a;
+  --grn:#34d399;
+  --txt:#eef0fa;
+  --txt2:#8b97c0;
+  --txt3:#404d70;
+  --r:12px;
+  --sidebar:244px;
+  /* card accent gradients */
+  --g-purple:linear-gradient(135deg,#5e49e8,#9b59f5);
+  --g-teal:linear-gradient(135deg,#00b896,#00d4a8);
+  --g-amber:linear-gradient(135deg,#e8920a,#ffb84d);
+  --g-rose:linear-gradient(135deg,#e83a70,#ff5fa0);
+  --g-sky:linear-gradient(135deg,#0ea5e9,#38bdf8);
+  --g-green:linear-gradient(135deg,#059669,#34d399);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Syne',system-ui,sans-serif;display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;height:100vh;position:relative;z-index:10}
+.brand{padding:24px 20px 20px;border-bottom:1px solid var(--bdr)}
+.brand-icon{width:44px;height:44px;border-radius:14px;background:var(--g-purple);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;box-shadow:0 4px 20px rgba(124,106,247,.35)}
+.brand-name{font-size:18px;font-weight:800;color:var(--txt);letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:var(--txt3);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+.nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--txt3);font-size:13px;font-weight:500;transition:all .15s;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:var(--surf);color:var(--txt2)}
+.nav-item.act{background:var(--acc3);color:var(--acc);border-color:rgba(124,106,247,.22)}
+.nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.nav-label{flex:1}
+.nav-badge{background:var(--acc);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;min-width:20px;text-align:center}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--bdr);display:flex;flex-direction:column;gap:6px}
+.footer-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Syne',sans-serif;border:none;transition:all .15s;width:100%;text-align:left}
+.footer-btn.export{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr)}
+.footer-btn.export:hover{border-color:var(--tel);color:var(--tel)}
+.footer-btn.import{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr)}
+.footer-btn.import:hover{border-color:var(--acc);color:var(--acc)}
+.footer-btn.clear{background:var(--surf2);color:var(--txt3);border:1px solid var(--bdr)}
+.footer-btn.clear:hover{border-color:var(--red);color:var(--red)}
+#import-file{display:none}
+
+/* ── MAIN AREA ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+
+/* TOPBAR */
+.topbar{height:60px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;background:var(--bg2)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.page-title{font-size:18px;font-weight:700;color:var(--txt)}
+.daybadge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.22);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--acc)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--tel);flex-shrink:0;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.save-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tel);opacity:0;transition:opacity .4s;font-family:'JetBrains Mono',monospace}
+.save-pill.show{opacity:1}
+.clock{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--txt3)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:28px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:4px}
+.panel{display:none}.panel.on{display:block}
+
+/* SECTION HEADER */
+.sh{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;margin:24px 0 10px}
+.sh:first-child{margin-top:0}
+
+/* STATS ROW */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden;transition:border .2s,transform .15s}
+.stat-card:hover{transform:translateY(-1px)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card:nth-child(1)::before{background:var(--g-purple)}
+.stat-card:nth-child(2)::before{background:var(--g-teal)}
+.stat-card:nth-child(3)::before{background:var(--g-amber)}
+.stat-card:nth-child(4)::before{background:var(--g-sky)}
+.stat-card-icon{font-size:22px;margin-bottom:10px;display:block}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;line-height:1}
+.stat-card:nth-child(1) .stat-num{color:var(--acc)}
+.stat-card:nth-child(2) .stat-num{color:var(--tel)}
+.stat-card:nth-child(3) .stat-num{color:var(--amb)}
+.stat-card:nth-child(4) .stat-num{color:var(--sky)}
+.stat-lbl{font-size:11px;color:var(--txt3);margin-top:5px;text-transform:uppercase;letter-spacing:.06em}
+.stat-delta{font-size:10px;margin-top:6px;font-family:'JetBrains Mono',monospace}
+.stat-delta.up{color:var(--grn)}
+.stat-delta.neu{color:var(--txt3)}
+
+/* TRACK PANEL */
+.track-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.track-left{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:20px}
+.date-row{display:flex;gap:10px;align-items:center;margin-bottom:20px}
+.dinp{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:11px 14px;font-size:14px;color:var(--txt);font-family:'Syne',sans-serif;outline:none;transition:border .15s}
+.dinp:focus{border-color:var(--acc)}
+.dchip{background:var(--acc3);border:1px solid rgba(91,141,238,.25);border-radius:8px;padding:9px 14px;font-size:13px;color:var(--acc);font-weight:600;white-space:nowrap}
+.disp{background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:14px 18px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:32px;color:var(--txt);min-height:62px;display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px;transition:border .15s}
+.disp.ph{color:var(--txt3)}
+.disp.active{border-color:var(--acc)}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.key{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:20px;cursor:pointer;color:var(--txt);transition:all .1s;user-select:none}
+.key:hover{background:var(--surf3);border-color:var(--bdr2)}
+.key:active{transform:scale(.96)}
+.key.del{color:var(--txt3);font-size:14px;font-family:'Syne',sans-serif}
+.key.go{background:var(--acc2);border-color:var(--acc2);color:#fff;font-size:14px;font-family:'Syne',sans-serif;font-weight:700}
+.key.go:hover{background:var(--acc)}
+.track-right{}
+
+/* EDIT BOX */
+.edit-box{background:var(--surf);border:1px solid rgba(91,141,238,.3);border-radius:var(--r);padding:16px;margin-bottom:14px;display:none}
+.edit-box.on{display:block}
+.edit-label{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.edit-row{display:flex;gap:8px;align-items:center}
+.einp{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:10px 14px;font-size:18px;font-family:'JetBrains Mono',monospace;color:var(--txt);outline:none}
+.einp:focus{border-color:var(--acc)}
+.ebtn{padding:10px 16px;border-radius:9px;border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.ebtn.save{background:var(--acc2);color:#fff}
+.ebtn.save:hover{background:var(--acc)}
+.ebtn.cancel{background:var(--surf2);color:var(--txt3);border:1px solid var(--bdr)}
+.ebtn.cancel:hover{color:var(--txt)}
+
+/* NUMBER ITEMS */
+.nitem{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;animation:si .2s ease;transition:border .15s}
+.nitem:hover{border-color:var(--bdr2)}
+@keyframes si{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.nbadge{width:40px;height:40px;border-radius:10px;background:var(--acc3);border:1px solid rgba(91,141,238,.2);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--acc);flex-shrink:0}
+.ninfo{flex:1;min-width:0}
+.nval{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;color:var(--txt)}
+.nmeta{font-size:11px;color:var(--txt3);margin-top:3px}
+.nright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.nrep{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--acc)}
+.nbar{width:48px;height:3px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.nfill{height:100%;background:var(--acc);border-radius:2px;transition:width .3s}
+.hotag{font-size:9px;color:var(--amb);border:1px solid rgba(240,168,48,.3);border-radius:10px;padding:2px 7px;letter-spacing:.04em}
+.acts{display:flex;gap:5px;flex-shrink:0}
+.abtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--bdr);background:transparent;color:var(--txt3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.abtn.e:hover{border-color:var(--acc);color:var(--acc);background:var(--acc3)}
+.abtn.d:hover{border-color:var(--red);color:var(--red);background:rgba(224,85,85,.08)}
+.empty{text-align:center;padding:48px 20px;color:var(--txt3);font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:.4}
+
+/* STATS FILTER */
+.frow{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.chip{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--surf);color:var(--txt3);font-family:'Syne',sans-serif;transition:all .15s}
+.chip:hover{border-color:var(--bdr2);color:var(--txt2)}
+.chip.act{background:var(--acc3);border-color:rgba(91,141,238,.3);color:var(--acc)}
+
+/* SORT BUTTONS */
+.sort-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.sort-lbl{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-right:4px}
+.sbtn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--surf2);color:var(--txt3);font-size:11px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;user-select:none}
+.sbtn:hover{border-color:var(--bdr2);color:var(--txt2)}
+.sbtn.act{background:var(--surf3);border-color:var(--acc);color:var(--acc)}
+.sbtn .sarr{font-size:10px;opacity:.7}
+
+/* DASHBOARD EXTRAS */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.dash-grid-wide{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.dash-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:border .2s}
+.dash-card:hover{border-color:var(--bdr2)}
+.dash-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.7}
+.dash-card.c-purple::after{background:var(--g-purple)}
+.dash-card.c-teal::after{background:var(--g-teal)}
+.dash-card.c-amber::after{background:var(--g-amber)}
+.dash-card.c-rose::after{background:var(--g-rose)}
+.dash-card.c-sky::after{background:var(--g-sky)}
+.dash-card.c-green::after{background:var(--g-green)}
+.dash-card-title{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.dash-card-title .dct-icon{font-size:14px}
+/* Mini KPI inside dash card */
+.dash-kpi{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;margin-bottom:4px}
+.dash-kpi-sub{font-size:11px;color:var(--txt3)}
+/* Frequency bars */
+.tail-freq-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.tail-freq-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--txt2);width:26px;flex-shrink:0}
+.tail-freq-bar{flex:1;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.tail-freq-fill{height:100%;border-radius:3px;background:var(--acc)}
+.tail-freq-cnt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt3);width:26px;text-align:right;flex-shrink:0}
+/* Streak items */
+.streak-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.streak-item:last-child{border-bottom:none}
+.streak-num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--txt)}
+.streak-days{font-size:11px;color:var(--txt3)}
+.streak-badge{background:var(--tel2);border:1px solid rgba(0,212,168,.25);color:var(--tel);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;font-family:'JetBrains Mono',monospace}
+/* Heatmap */
+.heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.hm-cell{border-radius:5px;height:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:rgba(255,255,255,.75);cursor:default;gap:1px}
+.hm-cell-day{font-size:8px;opacity:.6;font-family:'Syne',sans-serif}
+.hm-lbl{font-size:9px;color:var(--txt3);text-align:center;margin-top:4px}
+/* Activity spark */
+.spark-row{display:flex;align-items:flex-end;gap:3px;height:40px;margin:10px 0 4px}
+.spark-bar{flex:1;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s}
+.spark-lbl{display:flex;justify-content:space-between;font-size:9px;color:var(--txt3)}
+/* Donut ring */
+.donut-wrap{display:flex;align-items:center;gap:16px;margin-top:8px}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:6px;flex:1}
+.donut-leg-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--txt2)}
+.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* Hot number ticker */
+.hot-ticker{display:flex;flex-direction:column;gap:6px}
+.hot-num-row{display:flex;align-items:center;gap:10px}
+.hot-num-badge{width:44px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0}
+.hot-num-bar-wrap{flex:1;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.hot-num-bar-fill{height:100%;border-radius:3px}
+.hot-num-cnt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt3);width:26px;text-align:right}
+/* Recency timeline */
+.recency-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.rec-num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--txt);width:46px}
+.rec-date{font-size:10px;color:var(--txt3);flex:1}
+.rec-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.rec-badge.fresh{background:var(--tel2);color:var(--tel);border:1px solid rgba(0,212,168,.2)}
+.rec-badge.old{background:var(--amb2);color:var(--amb);border:1px solid rgba(255,184,77,.2)}
+/* Ratio bar */
+.ratio-bar-wrap{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:8px 0 4px;gap:2px}
+.ratio-seg{height:100%;border-radius:2px;transition:width .4s}
+.ratio-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.ratio-leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txt3)}
+.ratio-dot{width:7px;height:7px;border-radius:50%}
+
+/* PATTERNS TAB */
+.pat-section{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.pat-title{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.pat-sub{font-size:11px;color:var(--txt3);margin-bottom:14px;line-height:1.5}
+.pat-insight{background:var(--bg);border-left:3px solid var(--acc);border-radius:4px;padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--txt2);line-height:1.6}
+.pat-insight.warn{border-left-color:var(--amb)}
+.pat-insight.hot{border-left-color:var(--tel)}
+.pat-insight.info{border-left-color:var(--txt3)}
+.pat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.pat-mini{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px;text-align:center}
+.pat-mini-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--acc)}
+.pat-mini-lbl{font-size:10px;color:var(--txt3);margin-top:3px}
+.gap-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)}
+.gap-row:last-child{border-bottom:none}
+.gap-num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--txt);width:50px}
+.gap-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--amb);width:40px}
+.gap-bar{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.gap-fill{height:100%;border-radius:2px;background:var(--amb)}
+.heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.hm-lbl{font-size:9px;color:var(--txt3);text-align:center;margin-top:4px}
+.corr-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.corr-pair{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--txt);flex:1}
+.corr-score{font-size:11px;color:var(--tel);font-weight:700;width:50px;text-align:right}
+.corr-bar{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.corr-fill{height:100%;border-radius:2px;background:var(--tel)}
+
+/* HISTORY */
+.dhitem{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dhday{font-size:15px;font-weight:700;color:var(--txt)}
+.dhdate{font-size:11px;color:var(--txt3);margin-top:3px}
+.dhnums{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:300px}
+.dnum{background:var(--acc3);border:1px solid rgba(124,106,247,.2);border-radius:6px;padding:4px 9px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc)}
+
+/* PREDICT */
+.pred-hdr{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+.pday-name{font-size:22px;font-weight:800;color:var(--txt)}
+.pday-sub{font-size:12px;color:var(--txt3);margin-top:4px}
+.pbased{font-size:12px;color:var(--acc);background:var(--acc3);border-radius:8px;padding:5px 12px;border:1px solid rgba(124,106,247,.2)}
+.pred-strategies{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.strat-block{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px}
+.strat-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.strat-title.s1{color:var(--acc)}
+.strat-title.s2{color:var(--tel)}
+.strat-desc{font-size:11px;color:var(--txt3);margin-bottom:14px;line-height:1.5}
+.pred-5{display:flex;flex-direction:column;gap:7px}
+.p5row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;border:1px solid var(--bdr);background:var(--bg);transition:border .15s}
+.p5row:first-child{border-color:rgba(124,106,247,.4);background:var(--acc3)}
+.p5row.s2first:first-child{border-color:rgba(0,212,168,.35);background:rgba(0,212,168,.08)}
+.p5rank{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt3);width:18px;flex-shrink:0}
+.p5num{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--txt);min-width:60px}
+.p5row:first-child .p5num{color:var(--acc)}
+.p5row.s2first:first-child .p5num{color:var(--tel)}
+.p5bar-wrap{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.p5fill{height:100%;border-radius:2px;background:var(--acc)}
+.p5fill.s2{background:var(--tel)}
+.p5conf{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt3);white-space:nowrap}
+.strat-note{font-size:10px;color:var(--txt3);margin-top:10px;line-height:1.5;padding-top:10px;border-top:1px solid var(--bdr)}
+.icard{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;margin-bottom:10px}
+.ihead{font-size:10px;color:var(--txt3);margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.cbar-wrap{display:flex;align-items:center;gap:10px;margin-top:8px}
+.cbar-lbl{font-size:12px;color:var(--txt3);width:80px;font-family:'JetBrains Mono',monospace}
+.cbar{flex:1;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.cfill{height:100%;border-radius:3px}
+.notice{background:rgba(124,106,247,.07);border:1px solid rgba(124,106,247,.18);border-radius:var(--r);padding:14px 18px;font-size:13px;color:#a9a0f5;line-height:1.7;margin-bottom:14px}
+.pred-day-divider{display:flex;align-items:center;gap:12px;margin:28px 0 18px}
+.pred-day-divider-line{flex:1;height:1px;background:var(--bdr)}
+.pred-day-divider-badge{display:flex;align-items:center;gap:7px;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+.pred-day-divider-badge.today{background:rgba(124,106,247,.12);border:1px solid rgba(124,106,247,.28);color:var(--acc)}
+.pred-day-divider-badge.tomorrow{background:rgba(0,212,168,.1);border:1px solid rgba(0,212,168,.25);color:var(--tel)}
+
+/* RANGE MATCH */
+.range-form{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.rform-title{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.6}
+.rform-row{display:flex;gap:14px;margin-bottom:16px}
+.rfield{flex:1}
+.rfield-lbl{font-size:10px;color:var(--txt3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.rnuminp{width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:13px;font-size:22px;font-family:'JetBrains Mono',monospace;color:var(--txt);outline:none;text-align:center;letter-spacing:4px;transition:border .15s}
+.rnuminp:focus{border-color:var(--acc)}
+.rgo{width:100%;padding:14px;background:var(--acc2);border:none;border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+.rgo:hover{background:var(--acc)}
+/* Range Options */
+.range-opts-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.range-opt-lbl{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-right:4px;white-space:nowrap}
+.ropt-chip{padding:5px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--surf2);color:var(--txt3);font-size:11px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;user-select:none}
+.ropt-chip:hover{border-color:var(--bdr2);color:var(--txt2)}
+.ropt-chip.act{background:var(--acc3);border-color:rgba(91,141,238,.3);color:var(--acc)}
+.ropt-chip.tel.act{background:rgba(31,184,154,.1);border-color:rgba(31,184,154,.3);color:var(--tel)}
+.ropt-chip.amb.act{background:rgba(240,168,48,.08);border-color:rgba(240,168,48,.25);color:var(--amb)}
+/* Quick presets */
+.preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.preset-btn{padding:5px 11px;border-radius:8px;border:1px solid var(--bdr);background:var(--surf2);color:var(--txt3);font-size:11px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.preset-btn:hover{border-color:var(--acc);color:var(--acc)}
+/* Scoreboard summary row */
+.rm-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.rm-stat{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:12px;text-align:center}
+.rm-stat-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--acc)}
+.rm-stat-lbl{font-size:10px;color:var(--txt3);margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
+/* Tail summary pills */
+.tail-summary{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.tail-pill{display:flex;align-items:center;gap:5px;background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all .15s;user-select:none}
+.tail-pill:hover{border-color:var(--acc);background:var(--acc3)}
+.tail-pill.sel{border-color:rgba(91,141,238,.5);background:var(--acc3)}
+.tail-pill .tdig{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--acc)}
+.tail-pill .tcnt{font-size:11px;color:var(--txt3)}
+/* Range info badge */
+.range-info{display:inline-flex;align-items:center;gap:6px;background:rgba(91,141,238,.08);border:1px solid rgba(91,141,238,.2);border-radius:8px;padding:6px 14px;font-size:12px;color:#8aabef;margin-bottom:14px}
+/* Result items */
+.mitem{border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;border:1px solid var(--bdr);background:var(--surf);transition:all .15s;cursor:pointer}
+.mitem:hover{border-color:var(--bdr2);background:var(--surf2)}
+.mitem.rank1{border-color:rgba(91,141,238,.4);background:var(--acc3)}
+.mitem.rank2{border-color:#3a3a4a}
+.mitem.rank3{border-color:#4a3a20}
+.mitem.picked{border-color:var(--tel)!important;background:rgba(31,184,154,.08)!important}
+.mrank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.mrank.g{background:#c8960b;color:#ffe066}
+.mrank.s{background:#444;color:#ccc}
+.mrank.b{background:#7c4a1a;color:#f0c080}
+.mrank.n{background:var(--surf2);color:var(--txt3);font-size:11px}
+.mnum{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--txt);min-width:60px}
+.mtail-badge{background:var(--acc3);border:1px solid rgba(91,141,238,.25);border-radius:6px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc);flex-shrink:0}
+.mdetail{flex:1;min-width:0}
+.mscore{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--amb)}
+.mbar-wrap{display:flex;align-items:center;gap:8px;margin-top:5px}
+.mbar{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.mfill{height:100%;border-radius:2px}
+.msrc{font-size:10px;color:var(--txt3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Pick button */
+.mpick{width:34px;height:34px;border-radius:9px;border:1px solid var(--bdr);background:transparent;color:var(--txt3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.mpick:hover{border-color:var(--tel);color:var(--tel);background:rgba(31,184,154,.08)}
+.mpick.picked{background:rgba(31,184,154,.15);border-color:var(--tel);color:var(--tel)}
+/* Picked basket */
+.picked-basket{background:var(--surf);border:1px solid rgba(31,184,154,.3);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:none}
+.picked-basket.on{display:block}
+.picked-basket-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.picked-basket-title{font-size:12px;font-weight:700;color:var(--tel);text-transform:uppercase;letter-spacing:.08em}
+.picked-chips{display:flex;gap:7px;flex-wrap:wrap}
+.picked-chip{display:flex;align-items:center;gap:5px;background:rgba(31,184,154,.1);border:1px solid rgba(31,184,154,.25);border-radius:8px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--tel)}
+.picked-chip .px{cursor:pointer;color:rgba(31,184,154,.5);font-size:11px;margin-left:2px;transition:color .15s}
+.picked-chip .px:hover{color:var(--red)}
+.picked-clear{padding:5px 12px;border-radius:8px;border:1px solid rgba(224,85,85,.25);background:transparent;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s}
+.picked-clear:hover{background:rgba(224,85,85,.08)}
+/* Tail breakdown section */
+.rm-tail-section{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.rm-tail-title{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+/* Spread visualization */
+.spread-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:10px 0}
+.spread-cell{height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;cursor:default;border:1px solid transparent;transition:all .15s;position:relative}
+.spread-cell.has{cursor:pointer}
+.spread-cell.has:hover{border-color:var(--acc);transform:scale(1.05);z-index:2}
+.spread-cell.spread-picked{border-color:var(--tel)!important}
+/* Day preference mini */
+.rm-day-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rm-day-lbl{font-size:10px;font-family:'Syne',sans-serif;color:var(--txt3);width:28px}
+.rm-day-bar{flex:1;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.rm-day-fill{height:100%;border-radius:3px;background:var(--acc)}
+.rm-day-cnt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt3);width:22px;text-align:right}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--surf3);border:1px solid var(--bdr2);color:var(--txt);padding:10px 22px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .25s;white-space:nowrap;z-index:999;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.ok{border-color:var(--tel);color:var(--tel)}
+.toast.err{border-color:var(--red);color:var(--red)}
+
+/* CONFIRM MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surf);border:1px solid var(--bdr2);border-radius:16px;padding:28px;max-width:380px;width:90%}
+.modal-title{font-size:17px;font-weight:700;color:var(--txt);margin-bottom:8px}
+.modal-msg{font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:22px}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end}
+.mbtn{padding:10px 20px;border-radius:9px;border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.mbtn.cancel{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr)}
+.mbtn.confirm{background:var(--red);color:#fff}
+
+/* SCROLLBAR for content areas */
+.track-right{max-height:calc(100vh - 200px);overflow-y:auto;padding-right:2px}
+.track-right::-webkit-scrollbar{width:3px}
+.track-right::-webkit-scrollbar-thumb{background:var(--bdr)}
+
+/* DATA SAVED INDICATOR */
+.saved-dot{width:7px;height:7px;border-radius:50%;background:var(--tel);display:inline-block;transition:background .3s}
+.saved-dot.dirty{background:var(--amb);animation:spin .6s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media(max-width:800px){
+  .sidebar{width:60px}
+  .brand-name,.brand-sub,.nav-label,.nav-badge,.footer-btn span{display:none}
+  .brand{padding:16px 10px;display:flex;justify-content:center}
+  .brand-icon{margin:0}
+  .nav{padding:12px 8px}
+  .nav-item{justify-content:center;padding:12px}
+  .sidebar-footer{padding:10px 8px}
+  .footer-btn{justify-content:center;padding:10px}
+  .footer-btn svg,.footer-btn .fi{font-size:16px}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .pred-strategies{grid-template-columns:1fr}
+  .track-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .track-right{max-height:none}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">🔢</div>
+    <div>
+      <div class="brand-name">NumTrack</div>
+      <div class="brand-sub">Pro · v5</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item act" onclick="goTab(0)" id="nav0">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">Track</div>
+    </div>
+    <div class="nav-item" onclick="goTab(1)" id="nav1">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Stats</div>
+    </div>
+    <div class="nav-item" onclick="goTab(2)" id="nav2">
+      <div class="nav-icon">📅</div>
+      <div class="nav-label">History</div>
+    </div>
+    <div class="nav-item" onclick="goTab(3)" id="nav3">
+      <div class="nav-icon">✨</div>
+      <div class="nav-label">Predict</div>
+    </div>
+    <div class="nav-item" onclick="goTab(4)" id="nav4">
+      <div class="nav-icon">🔍</div>
+      <div class="nav-label">Range Match</div>
+    </div>
+    <div class="nav-item" onclick="goTab(5)" id="nav5">
+      <div class="nav-icon">🧠</div>
+      <div class="nav-label">Patterns</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="footer-btn export" onclick="exportData()">
+      <span>⬆</span><span>Export JSON</span>
+    </button>
+    <button class="footer-btn import" onclick="document.getElementById('import-file').click()">
+      <span>⬇</span><span>Import JSON</span>
+    </button>
+    <input type="file" id="import-file" accept=".json" onchange="importData(event)"/>
+    <button class="footer-btn clear" onclick="confirmClear()">
+      <span>🗑</span><span>Clear All</span>
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="page-title">Track Numbers</div>
+      <div class="daybadge">
+        <span class="pulse"></span>
+        <span id="today-day">---</span> · <span id="today-date">---</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="save-pill" id="save-pill">✓ Saved</div>
+      <div class="clock" id="clk">--:--</div>
+    </div>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="content" id="main-content">
+
+    <!-- TRACK -->
+    <div class="panel on" id="p0">
+      <div class="stat-row">
+        <div class="stat-card"><span class="stat-card-icon">🗂</span><div class="stat-num" id="st-total">0</div><div class="stat-lbl">Total entries</div><div class="stat-delta neu" id="st-today-delta">—</div></div>
+        <div class="stat-card"><span class="stat-card-icon">🔢</span><div class="stat-num" id="st-uniq">0</div><div class="stat-lbl">Unique numbers</div><div class="stat-delta neu" id="st-uniq-delta">—</div></div>
+        <div class="stat-card"><span class="stat-card-icon">🔥</span><div class="stat-num" id="st-max">—</div><div class="stat-lbl">Most repeated</div><div class="stat-delta neu" id="st-max-cnt">—</div></div>
+        <div class="stat-card"><span class="stat-card-icon">📅</span><div class="stat-num" id="st-days">0</div><div class="stat-lbl">Days tracked</div><div class="stat-delta neu" id="st-days-sub">—</div></div>
+      </div>
+      <div class="track-grid">
+        <div class="track-left">
+          <div class="sh" style="margin-top:0">Entry date</div>
+          <div class="date-row">
+            <input class="dinp" type="date" id="entry-date"/>
+            <div class="dchip" id="entry-day">---</div>
+          </div>
+          <div class="sh">Enter number</div>
+          <div class="disp ph" id="disp">0</div>
+          <div id="pred-hint" style="display:none;margin-bottom:12px;padding:8px 14px;border-radius:9px;border:1px solid;font-size:12px;line-height:1.5;animation:si .2s ease"></div>
+          <div class="keys">
+            <div class="key" onclick="kp('1')">1</div><div class="key" onclick="kp('2')">2</div><div class="key" onclick="kp('3')">3</div>
+            <div class="key" onclick="kp('4')">4</div><div class="key" onclick="kp('5')">5</div><div class="key" onclick="kp('6')">6</div>
+            <div class="key" onclick="kp('7')">7</div><div class="key" onclick="kp('8')">8</div><div class="key" onclick="kp('9')">9</div>
+            <div class="key del" onclick="kp('del')">⌫</div><div class="key" onclick="kp('0')">0</div>
+            <div class="key go" onclick="addNum()">Add ➜</div>
+          </div>
+        </div>
+        <div class="track-right">
+          <div class="edit-box" id="edit-box">
+            <div class="edit-label">Edit number</div>
+            <div class="edit-row">
+              <input class="einp" id="edit-val" type="number" placeholder="New value"/>
+              <button class="ebtn save" onclick="saveEdit()">Save</button>
+              <button class="ebtn cancel" onclick="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+          <div class="sh" style="margin-top:0">Numbers for this date</div>
+          <div id="track-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="panel" id="p1">
+      <div class="stat-row">
+        <div class="stat-card"><span class="stat-card-icon">🗂</span><div class="stat-num" id="s2-total">0</div><div class="stat-lbl">Total entries</div></div>
+        <div class="stat-card"><span class="stat-card-icon">🔢</span><div class="stat-num" id="s2-uniq">0</div><div class="stat-lbl">Unique numbers</div></div>
+        <div class="stat-card"><span class="stat-card-icon">🔥</span><div class="stat-num" id="s2-max">—</div><div class="stat-lbl">Most repeated</div></div>
+        <div class="stat-card"><span class="stat-card-icon">📅</span><div class="stat-num" id="s2-days">0</div><div class="stat-lbl">Days tracked</div></div>
+      </div>
+      <!-- DASHBOARD EXTRAS -->
+      <div class="sh" style="margin-top:0">Overview Dashboard</div>
+      <div id="dash-extras"></div>
+      <div class="sh">Filter by repeat count</div>
+      <div class="frow">
+        <div class="chip act" onclick="setFilter('all',this)">All</div>
+        <div class="chip" onclick="setFilter('5',this)">5+ repeats</div>
+        <div class="chip" onclick="setFilter('10',this)">10+ repeats</div>
+      </div>
+      <div class="sh">Sort</div>
+      <div class="sort-row">
+        <span class="sort-lbl">By:</span>
+        <button class="sbtn act" id="sb-num-asc" onclick="setSort('num','asc')"><span>Number</span><span class="sarr">↑</span></button>
+        <button class="sbtn" id="sb-num-desc" onclick="setSort('num','desc')"><span>Number</span><span class="sarr">↓</span></button>
+        <button class="sbtn" id="sb-cnt-asc" onclick="setSort('cnt','asc')"><span>Count</span><span class="sarr">↑</span></button>
+        <button class="sbtn" id="sb-cnt-desc" onclick="setSort('cnt','desc')"><span>Count</span><span class="sarr">↓</span></button>
+      </div>
+      <div id="stats-list"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="panel" id="p2">
+      <div class="sh" style="margin-top:0">Numbers by day of week</div>
+      <div id="hist-list"></div>
+    </div>
+
+    <!-- PREDICT -->
+    <div class="panel" id="p3">
+      <div id="pred-content"></div>
+    </div>
+
+    <!-- RANGE MATCH -->
+    <div class="panel" id="p4">
+      <div class="range-form">
+        <div class="rform-title">🎯 Enter a number range to find the strongest candidates based on your stored data — ranked by tail frequency, day preference, recency, and more.</div>
+
+        <!-- Quick presets -->
+        <div class="rfield-lbl" style="margin-bottom:8px">Quick presets</div>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setPreset(1000,1999)">1000–1999</button>
+          <button class="preset-btn" onclick="setPreset(2000,2999)">2000–2999</button>
+          <button class="preset-btn" onclick="setPreset(3000,3999)">3000–3999</button>
+          <button class="preset-btn" onclick="setPreset(4000,4999)">4000–4999</button>
+          <button class="preset-btn" onclick="setPreset(5000,5999)">5000–5999</button>
+          <button class="preset-btn" onclick="setPreset(1000,9999)">Full range</button>
+        </div>
+
+        <div class="rform-row">
+          <div class="rfield">
+            <div class="rfield-lbl">From</div>
+            <input class="rnuminp" id="r-from" type="number" placeholder="1000" min="1000" max="9999"/>
+          </div>
+          <div class="rfield">
+            <div class="rfield-lbl">To</div>
+            <input class="rnuminp" id="r-to" type="number" placeholder="9999" min="1000" max="9999"/>
+          </div>
+        </div>
+
+        <!-- Scoring mode -->
+        <div class="range-opts-row">
+          <span class="range-opt-lbl">Score by:</span>
+          <div class="ropt-chip act" id="rm-score-tail" onclick="setRmScore('tail',this)">Tail frequency</div>
+          <div class="ropt-chip" id="rm-score-combo" onclick="setRmScore('combo',this)">Combined score</div>
+          <div class="ropt-chip" id="rm-score-recency" onclick="setRmScore('recency',this)">Recency boost</div>
+        </div>
+
+        <!-- Show top N -->
+        <div class="range-opts-row">
+          <span class="range-opt-lbl">Show top:</span>
+          <div class="ropt-chip tel act" id="rm-top-10" onclick="setRmTop(10,this)">10</div>
+          <div class="ropt-chip tel" id="rm-top-20" onclick="setRmTop(20,this)">20</div>
+          <div class="ropt-chip tel" id="rm-top-50" onclick="setRmTop(50,this)">50</div>
+          <div class="ropt-chip tel" id="rm-top-all" onclick="setRmTop(9999,this)">All</div>
+        </div>
+
+        <!-- Day filter -->
+        <div class="range-opts-row">
+          <span class="range-opt-lbl">Day focus:</span>
+          <div class="ropt-chip amb act" id="rm-day-all" onclick="setRmDay('All',this)">Any day</div>
+          <div class="ropt-chip amb" id="rm-day-Sun" onclick="setRmDay('Sunday',this)">Sun</div>
+          <div class="ropt-chip amb" id="rm-day-Mon" onclick="setRmDay('Monday',this)">Mon</div>
+          <div class="ropt-chip amb" id="rm-day-Tue" onclick="setRmDay('Tuesday',this)">Tue</div>
+          <div class="ropt-chip amb" id="rm-day-Wed" onclick="setRmDay('Wednesday',this)">Wed</div>
+          <div class="ropt-chip amb" id="rm-day-Thu" onclick="setRmDay('Thursday',this)">Thu</div>
+          <div class="ropt-chip amb" id="rm-day-Fri" onclick="setRmDay('Friday',this)">Fri</div>
+          <div class="ropt-chip amb" id="rm-day-Sat" onclick="setRmDay('Saturday',this)">Sat</div>
+        </div>
+
+        <button class="rgo" onclick="runMatch()">Analyze range →</button>
+      </div>
+
+      <!-- Picked basket -->
+      <div class="picked-basket" id="picked-basket">
+        <div class="picked-basket-hdr">
+          <div class="picked-basket-title">⭐ My Picks (<span id="picked-count">0</span>)</div>
+          <button class="picked-clear" onclick="clearPicks()">Clear all</button>
+        </div>
+        <div class="picked-chips" id="picked-chips"></div>
+      </div>
+
+      <div id="match-out"></div>
+    </div>
+
+    <!-- PATTERNS -->
+    <div class="panel" id="p5">
+      <div id="patterns-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Clear all data?</div>
+    <div class="modal-msg" id="modal-msg">This will permanently delete all tracked numbers. This cannot be undone.</div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn confirm" id="modal-confirm-btn" onclick="clearAll()">Delete all</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const PAGE_TITLES=['Track Numbers','Statistics','History','Predictions','Range Match','Patterns & Relations'];
+const STORAGE_KEY='numtrack_pro_v5';
+let db={entries:[]};
+let cur='';
+let filterMode='all';
+let sortField='num'; // 'num' or 'cnt'
+let sortDir='asc';   // 'asc' or 'desc'
+let editId=null;
+let nid=1;
+let saveTimer=null;
+
+/* ── STORAGE ── */
+function loadData(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      db=parsed;
+      // restore nid above max id
+      if(db.entries.length){
+        nid=Math.max(...db.entries.map(e=>e.id||0))+1;
+      }
+    }
+  }catch(e){console.warn('Load failed',e)}
+}
+function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+    showSavePill();
+  }catch(e){showToast('Storage full — export your data!','err')}
+}
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveData,400);
+}
+function showSavePill(){
+  const p=document.getElementById('save-pill');
+  p.classList.add('show');
+  setTimeout(()=>p.classList.remove('show'),1800);
+}
+
+/* ── EXPORT / IMPORT ── */
+function exportData(){
+  const payload=JSON.stringify(db,null,2);
+  const blob=new Blob([payload],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const d=new Date();
+  a.download=`numtrack_backup_${d.toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported ✓','ok');
+}
+function importData(ev){
+  const file=ev.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      if(!parsed.entries||!Array.isArray(parsed.entries))throw new Error('Invalid format');
+      // merge: add entries not already present by id
+      const existingIds=new Set(db.entries.map(x=>x.id));
+      let added=0;
+      parsed.entries.forEach(entry=>{
+        if(!existingIds.has(entry.id)){
+          db.entries.push(entry);
+          added++;
+        }
+      });
+      nid=Math.max(...db.entries.map(e=>e.id||0))+1;
+      saveData();
+      renderAll();
+      showToast(`Imported ${added} new entries ✓`,'ok');
+    }catch(err){
+      showToast('Invalid file format','err');
+    }
+    ev.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+/* ── CONFIRM / CLEAR ── */
+function confirmClear(){
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('show');
+}
+function clearAll(){
+  db={entries:[]};nid=1;cur='';editId=null;
+  saveData();
+  renderAll();
+  closeModal();
+  showToast('All data cleared','err');
+  // reset display
+  const d=document.getElementById('disp');d.textContent='0';d.classList.add('ph');
+  cancelEdit();
+}
+
+/* ── UTILITIES ── */
+function uid(){return nid++}
+function fmtDate(d){return d.toISOString().split('T')[0]}
+function dayName(ds){return DAYS[new Date(ds+'T12:00:00').getDay()]}
+function today(){return fmtDate(new Date())}
+function todayName(){return DAYS[new Date().getDay()]}
+function tail2(n){const s=String(n).replace(/\D/g,'');return s.length>=2?s.slice(-2):s.padStart(2,'0')}
+
+/* ── DATE INIT ── */
+function initDate(){
+  const d=document.getElementById('entry-date');
+  d.value=today();updateEntryDay();
+  d.addEventListener('change',()=>{updateEntryDay();renderTrackList()});
+}
+function updateEntryDay(){
+  const v=document.getElementById('entry-date').value;
+  document.getElementById('entry-day').textContent=v?dayName(v):'---';
+}
+
+/* ── KEYPAD ── */
+function kp(k){
+  if(k==='del')cur=cur.slice(0,-1);
+  else if(cur.length<6)cur+=k;
+  const d=document.getElementById('disp');
+  if(!cur){d.textContent='0';d.classList.add('ph');d.classList.remove('active')}
+  else{d.textContent=cur;d.classList.remove('ph');d.classList.add('active')}
+  checkPredHint();
+}
+
+/* ── PREDICTION HINT (shown while typing) ── */
+function getPredictedNums(){
+  if(!db.entries.length)return{today:[],tomorrow:[]};
+  const dm=dayMap();
+  const todayDate=new Date();
+  const tomorrowDate=new Date();tomorrowDate.setDate(tomorrowDate.getDate()+1);
+  const s1t=stratDayFrequency(dm,todayDate);
+  const s2t=stratGapRecency(dm,todayDate);
+  const s3t=stratTailMomentum(dm,todayDate);
+  const s1tm=stratDayFrequency(dm,tomorrowDate);
+  const s2tm=stratGapRecency(dm,tomorrowDate);
+  const s3tm=stratTailMomentum(dm,tomorrowDate);
+  const todayNums=new Set([...s1t.result.map(([n])=>n),...s2t.result.map(([n])=>n),...s3t.result.map(([n])=>n)]);
+  const tomorrowNums=new Set([...s1tm.result.map(([n])=>n),...s2tm.result.map(([n])=>n),...s3tm.result.map(([n])=>n)]);
+  return{today:[...todayNums],tomorrow:[...tomorrowNums]};
+}
+
+function checkPredHint(){
+  const hint=document.getElementById('pred-hint');
+  if(!cur||cur.length<2){hint.style.display='none';return;}
+  const {today:tNums,tomorrow:tmNums}=getPredictedNums();
+  const inToday=tNums.includes(cur);
+  const inTomorrow=tmNums.includes(cur);
+  if(!inToday&&!inTomorrow){hint.style.display='none';return;}
+  let lines=[];
+  if(inToday)lines.push(`<span style="color:var(--acc)">✨ In <strong>Today's</strong> prediction</span>`);
+  if(inTomorrow)lines.push(`<span style="color:var(--tel)">🔮 In <strong>Tomorrow's</strong> prediction</span>`);
+  const borderColor=inToday?'rgba(124,106,247,.4)':'rgba(0,212,168,.35)';
+  const bgColor=inToday?'rgba(124,106,247,.08)':'rgba(0,212,168,.07)';
+  hint.style.cssText=`display:block;margin-bottom:12px;padding:8px 14px;border-radius:9px;border:1px solid ${borderColor};background:${bgColor};font-size:12px;line-height:1.8;animation:si .2s ease`;
+  hint.innerHTML=`<div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:4px">🎯 Prediction Match</div>${lines.join('<br>')}`;
+}
+
+/* ── ADD / EDIT / DELETE ── */
+function addNum(){
+  if(!cur){showToast('Enter a number first');return}
+  const dv=document.getElementById('entry-date').value;
+  if(!dv){showToast('Pick a date');return}
+  // Check prediction match before saving
+  const {today:tNums,tomorrow:tmNums}=getPredictedNums();
+  const inToday=tNums.includes(cur);
+  const inTomorrow=tmNums.includes(cur);
+  db.entries.push({id:uid(),date:dv,num:cur});
+  if(inToday&&inTomorrow)showToast('🎯 '+cur+' was predicted for Today & Tomorrow!','ok');
+  else if(inToday)showToast('✨ '+cur+' matched Today\'s prediction!','ok');
+  else if(inTomorrow)showToast('🔮 '+cur+' matched Tomorrow\'s prediction!','ok');
+  else showToast('Added '+cur+' for '+dayName(dv),'ok');
+  cur='';
+  const d=document.getElementById('disp');d.textContent='0';d.classList.add('ph');d.classList.remove('active');
+  document.getElementById('pred-hint').style.display='none';
+  scheduleSave();
+  renderAll();
+}
+function deleteEntry(id){
+  db.entries=db.entries.filter(e=>e.id!==id);
+  if(editId===id)cancelEdit();
+  scheduleSave();
+  renderAll();
+  showToast('Entry deleted');
+}
+function startEdit(id){
+  const e=db.entries.find(x=>x.id===id);if(!e)return;
+  editId=id;
+  document.getElementById('edit-val').value=e.num;
+  document.getElementById('edit-box').classList.add('on');
+  document.getElementById('edit-val').focus();
+}
+function saveEdit(){
+  const v=document.getElementById('edit-val').value.trim();
+  if(!v){showToast('Enter a value');return}
+  const e=db.entries.find(x=>x.id===editId);
+  if(e){e.num=v;showToast('Updated to '+v,'ok')}
+  cancelEdit();scheduleSave();renderAll();
+}
+function cancelEdit(){
+  editId=null;
+  document.getElementById('edit-box').classList.remove('on');
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){renderQuickStats();renderTrackList();renderDashExtras();renderStats();renderHistory();renderPredict()}
+
+function renderQuickStats(){
+  const cm=countMap();
+  const entries=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
+  const total=db.entries.length;
+  const uniq=Object.keys(cm).length;
+  const maxN=entries.length?entries[0][0]:'—';
+  const maxCnt=entries.length?entries[0][1]:0;
+  const days=new Set(db.entries.map(e=>e.date)).size;
+  const todayStr=fmtDate(new Date());
+  const todayCount=db.entries.filter(e=>e.date===todayStr).length;
+  ['st-total','s2-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=total});
+  ['st-uniq','s2-uniq'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=uniq});
+  ['st-max','s2-max'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=maxN});
+  ['st-days','s2-days'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=days});
+  // delta / sub labels
+  const d1=document.getElementById('st-today-delta');
+  if(d1){d1.textContent=todayCount>0?`+${todayCount} today`:'none today';d1.className='stat-delta '+(todayCount>0?'up':'neu')}
+  const d2=document.getElementById('st-uniq-delta');
+  if(d2){const ratio=total>0?Math.round(uniq/total*100):0;d2.textContent=`${ratio}% unique rate`;d2.className='stat-delta neu'}
+  const d3=document.getElementById('st-max-cnt');
+  if(d3){d3.textContent=maxCnt>0?`×${maxCnt} times`:'no data';d3.className='stat-delta '+(maxCnt>=5?'up':'neu')}
+  const d4=document.getElementById('st-days-sub');
+  if(d4){const avg=days>0?(total/days).toFixed(1):0;d4.textContent=`~${avg}/day avg`;d4.className='stat-delta neu'}
+  // update nav badge
+  const nb=document.getElementById('nav-entries');
+  if(nb)nb.textContent=total;
+}
+
+/* ── TRACK LIST ── */
+function renderTrackList(){
+  const dv=document.getElementById('entry-date').value||today();
+  const items=db.entries.filter(e=>e.date===dv);
+  const el=document.getElementById('track-list');
+  if(!items.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>No numbers for this date yet</div>';
+    return;
+  }
+  const cm={};items.forEach(e=>{cm[e.num]=(cm[e.num]||0)+1});
+  const maxr=Math.max(...Object.values(cm),1);
+  el.innerHTML=items.slice().reverse().map(e=>`
+    <div class="nitem">
+      <div class="nbadge">${tail2(e.num)}</div>
+      <div class="ninfo">
+        <div class="nval">${e.num}</div>
+        <div class="nmeta">${dayName(e.date)} &bull; x${cm[e.num]} today</div>
+      </div>
+      <div class="nright">
+        <div class="nrep">${cm[e.num]}</div>
+        <div class="nbar"><div class="nfill" style="width:${Math.round(cm[e.num]/maxr*100)}%"></div></div>
+        ${cm[e.num]>=5?'<div class="hotag">🔥 hot</div>':''}
+      </div>
+      <div class="acts">
+        <button class="abtn e" onclick="startEdit(${e.id})" title="Edit">✏️</button>
+        <button class="abtn d" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── MAPS ── */
+function countMap(){
+  const m={};db.entries.forEach(e=>{m[e.num]=(m[e.num]||0)+1});return m;
+}
+function tailCountMap(){
+  const m={};db.entries.forEach(e=>{const t=tail2(e.num);m[t]=(m[t]||0)+1});return m;
+}
+function dayMap(){
+  const m={};
+  db.entries.forEach(e=>{
+    const dn=dayName(e.date);
+    if(!m[dn])m[dn]={};
+    m[dn][e.num]=(m[dn][e.num]||0)+1;
+  });
+  return m;
+}
+
+/* ── STATS ── */
+function setFilter(m,el){
+  filterMode=m;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('act'));
+  el.classList.add('act');renderStats();
+}
+function setSort(field,dir){
+  sortField=field;sortDir=dir;
+  ['num-asc','num-desc','cnt-asc','cnt-desc'].forEach(k=>{
+    const b=document.getElementById('sb-'+k);
+    if(b)b.classList.toggle('act',k===field+'-'+dir);
+  });
+  renderStats();
+}
+function renderStats(){
+  const cm=countMap();
+  const entries=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
+  let filtered=entries;
+  if(filterMode==='5')filtered=entries.filter(([,c])=>c>=5);
+  if(filterMode==='10')filtered=entries.filter(([,c])=>c>=10);
+  // apply sort
+  filtered=filtered.slice().sort((a,b)=>{
+    if(sortField==='num'){
+      const diff=Number(a[0])-Number(b[0]);
+      return sortDir==='asc'?diff:-diff;
+    } else {
+      const diff=a[1]-b[1];
+      return sortDir==='asc'?diff:-diff;
+    }
+  });
+  const maxr=entries.length?entries[0][1]:1;
+  const el=document.getElementById('stats-list');
+  if(!filtered.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div>No numbers match this filter</div>';return}
+  el.innerHTML=filtered.map(([n,c])=>`
+    <div class="nitem">
+      <div class="nbadge">${tail2(n)}</div>
+      <div class="ninfo">
+        <div class="nval">${n}</div>
+        <div class="nmeta">${[...new Set(db.entries.filter(e=>e.num===n).map(e=>e.date))].length} date(s) &bull; tail: ..${tail2(n)}</div>
+      </div>
+      <div class="nright">
+        <div class="nrep">${c}</div>
+        <div class="nbar"><div class="nfill" style="width:${Math.round(c/maxr*100)}%"></div></div>
+        ${c>=5?'<div class="hotag">🔥 hot</div>':''}
+      </div>
+    </div>`).join('');
+}
+
+/* ── DASHBOARD EXTRAS ── */
+function renderDashExtras(){
+  const el=document.getElementById('dash-extras');
+  if(!el)return;
+  if(!db.entries.length){el.innerHTML='';return}
+  const cm=countMap();
+  const tcm=tailCountMap();
+  const dm=dayMap();
+  const allEntries=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
+  const totalNums=db.entries.length;
+
+  // ── CARD 1: Top tail frequencies (purple) ──
+  const tailsSorted=Object.entries(tcm).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxTail=tailsSorted.length?tailsSorted[0][1]:1;
+  const ACC_COLORS=['var(--acc)','var(--tel)','var(--amb)','var(--rose)','var(--sky)','var(--grn)','var(--acc)','var(--tel)'];
+  let tailHtml=`<div class="dash-card c-purple"><div class="dash-card-title"><span class="dct-icon">🎯</span>Top last-2 digits</div>`;
+  tailsSorted.forEach(([t,c],i)=>{
+    const pct=Math.round(c/maxTail*100);
+    tailHtml+=`<div class="tail-freq-row">
+      <div class="tail-freq-lbl">${t}</div>
+      <div class="tail-freq-bar"><div class="tail-freq-fill" style="width:${pct}%;background:${ACC_COLORS[i]}"></div></div>
+      <div class="tail-freq-cnt">×${c}</div>
+    </div>`;
+  });
+  tailHtml+=`</div>`;
+
+  // ── CARD 2: Hot numbers ranked (rose) ──
+  const hotEntries=allEntries.slice(0,7);
+  const maxHot=hotEntries.length?hotEntries[0][1]:1;
+  const HOT_BKGS=['rgba(124,106,247,.2)','rgba(0,212,168,.15)','rgba(255,184,77,.15)','rgba(255,95,160,.15)','rgba(56,189,248,.15)','rgba(52,211,153,.15)','rgba(124,106,247,.12)'];
+  const HOT_FILLS=['var(--acc)','var(--tel)','var(--amb)','var(--rose)','var(--sky)','var(--grn)','var(--acc)'];
+  let hotHtml=`<div class="dash-card c-rose"><div class="dash-card-title"><span class="dct-icon">🔥</span>Hottest numbers</div><div class="hot-ticker">`;
+  hotEntries.forEach(([n,c],i)=>{
+    const pct=Math.round(c/maxHot*100);
+    hotHtml+=`<div class="hot-num-row">
+      <div class="hot-num-badge" style="background:${HOT_BKGS[i]};color:${HOT_FILLS[i]}">${tail2(n)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--txt);margin-bottom:3px">${n}</div>
+        <div class="hot-num-bar-wrap"><div class="hot-num-bar-fill" style="width:${pct}%;height:4px;background:${HOT_FILLS[i]};border-radius:2px"></div></div>
+      </div>
+      <div class="hot-num-cnt">×${c}</div>
+    </div>`;
+  });
+  hotHtml+=`</div></div>`;
+
+  // ── CARD 3: Activity heatmap (teal) ──
+  const dayTotals={};
+  DAYS.forEach(d=>{dayTotals[d]=0});
+  db.entries.forEach(e=>{dayTotals[dayName(e.date)]++});
+  const maxDay=Math.max(...Object.values(dayTotals),1);
+  let hmHtml=`<div class="dash-card c-teal"><div class="dash-card-title"><span class="dct-icon">🌡</span>Activity by day</div>
+  <div class="heatmap-grid">`;
+  DAYS.forEach(d=>{
+    const cnt=dayTotals[d];
+    const intensity=Math.round(cnt/maxDay*100);
+    const bg=cnt===0?'var(--bdr)':`rgba(0,212,168,${0.08+intensity/100*0.85})`;
+    hmHtml+=`<div class="hm-cell" style="background:${bg};border-radius:6px;height:36px" title="${d}: ${cnt}">
+      <div class="hm-cell-day">${d.slice(0,2)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:rgba(255,255,255,.85)">${cnt||''}</div>
+    </div>`;
+  });
+  hmHtml+=`</div></div>`;
+
+  // ── CARD 4: Consecutive-day streaks (amber) ──
+  const numStreaks={};
+  Object.keys(cm).forEach(n=>{
+    const dates=[...new Set(db.entries.filter(e=>e.num===n).map(e=>e.date))].sort();
+    let maxS=1,cur=1;
+    for(let i=1;i<dates.length;i++){
+      const diff=(new Date(dates[i]+'T12:00')-new Date(dates[i-1]+'T12:00'))/(864e5);
+      if(diff===1){cur++;maxS=Math.max(maxS,cur)}else cur=1;
+    }
+    if(maxS>1)numStreaks[n]=maxS;
+  });
+  const streakList=Object.entries(numStreaks).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  let streakHtml=`<div class="dash-card c-amber"><div class="dash-card-title"><span class="dct-icon">⚡</span>Consecutive streaks</div>`;
+  if(streakList.length){
+    streakList.forEach(([n,s])=>{
+      streakHtml+=`<div class="streak-item">
+        <div><div class="streak-num">${n}</div><div class="streak-days">${s} days in a row</div></div>
+        <div class="streak-badge">${s}d</div>
+      </div>`;
+    });
+  } else {
+    streakHtml+=`<div style="font-size:12px;color:var(--txt3);padding:8px 0">No streaks yet — add across consecutive days.</div>`;
+  }
+  streakHtml+=`</div>`;
+
+  // ── CARD 5: Weekly entry volume spark (sky) ──
+  const today=new Date();
+  const weekLabels=[];
+  const weekCounts=[];
+  for(let w=6;w>=0;w--){
+    const d=new Date(today);
+    d.setDate(d.getDate()-w);
+    const ds=fmtDate(d);
+    weekLabels.push(d.toLocaleDateString('en-US',{weekday:'short'}));
+    weekCounts.push(db.entries.filter(e=>e.date===ds).length);
+  }
+  const maxWk=Math.max(...weekCounts,1);
+  let sparkHtml=`<div class="dash-card c-sky"><div class="dash-card-title"><span class="dct-icon">📈</span>Last 7 days volume</div>
+  <div class="spark-row">`;
+  weekCounts.forEach((c,i)=>{
+    const h=Math.max(4,Math.round(c/maxWk*100));
+    const clr=c===maxWk?'var(--sky)':c>0?'rgba(56,189,248,.45)':'var(--bdr)';
+    sparkHtml+=`<div class="spark-bar" style="height:${h}%;background:${clr}" title="${weekLabels[i]}: ${c}"></div>`;
+  });
+  sparkHtml+=`</div><div class="spark-lbl"><span>${weekLabels[0]}</span><span>${weekLabels[6]}</span></div>
+  <div style="margin-top:10px;display:flex;gap:12px">
+    <div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--sky)">${weekCounts.reduce((a,b)=>a+b,0)}</div><div style="font-size:10px;color:var(--txt3)">entries this week</div></div>
+    <div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--sky)">${weekCounts.filter(c=>c>0).length}</div><div style="font-size:10px;color:var(--txt3)">active days</div></div>
+  </div></div>`;
+
+  // ── CARD 6: Avg entry value by day (green) ──
+  const dayAvgs=DAYS.filter(d=>dm[d]).map(d=>{
+    const ents=db.entries.filter(e=>dayName(e.date)===d&&!isNaN(Number(e.num)));
+    const avg=ents.length?Math.round(ents.reduce((s,e)=>s+Number(e.num),0)/ents.length):0;
+    return {d,avg,cnt:ents.length};
+  });
+  let avgHtml=`<div class="dash-card c-green"><div class="dash-card-title"><span class="dct-icon">📊</span>Avg value by day</div>`;
+  if(dayAvgs.length){
+    const maxAvg=Math.max(...dayAvgs.map(x=>x.avg),1);
+    dayAvgs.forEach(({d,avg,cnt})=>{
+      avgHtml+=`<div class="tail-freq-row">
+        <div class="tail-freq-lbl" style="width:30px;font-size:10px;font-family:'Syne',sans-serif">${d.slice(0,3)}</div>
+        <div class="tail-freq-bar"><div class="tail-freq-fill" style="width:${Math.round(avg/maxAvg*100)}%;background:var(--grn)"></div></div>
+        <div class="tail-freq-cnt" style="width:46px;font-size:10px">${avg}</div>
+      </div>`;
+    });
+  } else {
+    avgHtml+=`<div style="font-size:12px;color:var(--txt3)">Not enough data.</div>`;
+  }
+  avgHtml+=`</div>`;
+
+  // ── CARD 7: Recency – most recently seen numbers (purple wide) ──
+  const recentMap={};
+  db.entries.forEach(e=>{
+    if(!recentMap[e.num]||e.date>recentMap[e.num])recentMap[e.num]=e.date;
+  });
+  const recentList=Object.entries(recentMap).sort((a,b)=>b[1].localeCompare(a[1])).slice(0,7);
+  const todayStr=fmtDate(new Date());
+  let recHtml=`<div class="dash-card c-purple" style="grid-column:span 2"><div class="dash-card-title"><span class="dct-icon">🕐</span>Recently seen numbers</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">`;
+  recentList.forEach(([n,date])=>{
+    const d=new Date(todayStr)-new Date(date);
+    const daysAgo=Math.round(d/864e5);
+    const isFresh=daysAgo<=3;
+    recHtml+=`<div class="recency-row">
+      <div class="rec-num">${n}</div>
+      <div class="rec-date">${date}</div>
+      <div class="rec-badge ${isFresh?'fresh':'old'}">${daysAgo===0?'today':daysAgo+'d ago'}</div>
+    </div>`;
+  });
+  recHtml+=`</div></div>`;
+
+  // ── CARD 8: Tail distribution donut (amber wide) ──
+  const tailGroups={'00–24':0,'25–49':0,'50–74':0,'75–99':0};
+  Object.entries(tcm).forEach(([t,c])=>{
+    const n=parseInt(t);
+    if(n<25)tailGroups['00–24']+=c;
+    else if(n<50)tailGroups['25–49']+=c;
+    else if(n<75)tailGroups['50–74']+=c;
+    else tailGroups['75–99']+=c;
+  });
+  const groupTotal=Object.values(tailGroups).reduce((a,b)=>a+b,0)||1;
+  const groupColors=['var(--acc)','var(--tel)','var(--amb)','var(--rose)'];
+  const groupEntries=Object.entries(tailGroups);
+  let donutHtml=`<div class="dash-card c-amber" style="grid-column:span 1"><div class="dash-card-title"><span class="dct-icon">🍩</span>Tail group spread</div>
+  <div class="ratio-bar-wrap">`;
+  groupEntries.forEach(([,c],i)=>{
+    const w=Math.round(c/groupTotal*100);
+    donutHtml+=`<div class="ratio-seg" style="width:${w}%;background:${groupColors[i]};flex:none"></div>`;
+  });
+  donutHtml+=`</div><div class="ratio-legend">`;
+  groupEntries.forEach(([label,c],i)=>{
+    donutHtml+=`<div class="ratio-leg"><div class="ratio-dot" style="background:${groupColors[i]}"></div>${label} <span style="color:var(--txt2);margin-left:4px">×${c}</span></div>`;
+  });
+  donutHtml+=`</div></div>`;
+
+  // ── Layout: row1=3col, row2=3col, row3=wide ──
+  el.innerHTML=`
+    <div class="dash-grid">${tailHtml}${hotHtml}${hmHtml}</div>
+    <div class="dash-grid">${streakHtml}${sparkHtml}${avgHtml}</div>
+    <div class="dash-grid-wide">${recHtml}${donutHtml}</div>
+  `;
+}
+
+/* ── HISTORY ── */
+function renderHistory(){
+  const dm=dayMap();
+  const el=document.getElementById('hist-list');
+  const order=DAYS.filter(d=>dm[d]);
+  if(!order.length){el.innerHTML='<div class="empty"><div class="empty-icon">📅</div>No history yet. Start adding numbers in the Track tab.</div>';return}
+  el.innerHTML=order.map(dn=>{
+    const nums=Object.entries(dm[dn]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const dates=[...new Set(db.entries.filter(e=>dayName(e.date)===dn).map(e=>e.date))];
+    return `<div class="dhitem">
+      <div><div class="dhday">${dn}</div><div class="dhdate">${dates.length} session(s)</div></div>
+      <div class="dhnums">${nums.map(([n,c])=>`<span class="dnum">${n}<span style="color:var(--txt3);font-size:10px"> ×${c}</span></span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── PREDICT ── */
+
+// Strategy 1: Day-of-week frequency + cross-day blend
+// Returns top 5 [num, score] sorted descending
+function stratDayFrequency(dm, targetDate){
+  const tName=DAYS[targetDate.getDay()];
+  const data=dm[tName]||{};
+  const allNums=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  const totalForDay=allNums.reduce((s,[,c])=>s+c,0)||1;
+  const crossDay={};
+  Object.values(dm).forEach(dobj=>Object.entries(dobj).forEach(([n,c])=>{crossDay[n]=(crossDay[n]||0)+c}));
+  const crossTotal=Object.values(crossDay).reduce((a,b)=>a+b,0)||1;
+  const scored={};
+  allNums.forEach(([n,c])=>{
+    const dc=c/totalForDay;
+    const cc=(crossDay[n]||0)/crossTotal;
+    scored[n]=dc*.65+cc*.35;
+  });
+  // Include cross-day numbers not yet scored (pure cross-day)
+  Object.entries(crossDay).forEach(([n,c])=>{
+    if(!(n in scored)) scored[n]=(c/crossTotal)*0.35;
+  });
+  // Normalise to 0–100
+  const maxScore=Math.max(...Object.values(scored),0.001);
+  const result=Object.entries(scored)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,5)
+    .map(([n,s])=>[n,Math.round((s/maxScore)*100)]);
+  return {tName, result};
+}
+
+// Strategy 2: Overdue / Gap analysis — numbers that are "due" based on their avg return gap
+// Returns top 5 [num, overdueScore]
+function stratGapRecency(dm, targetDate){
+  const tName=DAYS[targetDate.getDay()];
+  // Build per-number sorted date list
+  const numDates={};
+  db.entries.forEach(e=>{
+    if(!numDates[e.num])numDates[e.num]=[];
+    numDates[e.num].push(e.date);
+  });
+  const now=targetDate;
+  const candidates=[];
+  Object.entries(numDates).forEach(([n,dates])=>{
+    const sorted=[...new Set(dates)].sort();
+    if(sorted.length<2)return; // need at least 2 appearances to compute gap
+    // Average gap in days
+    const gaps=[];
+    for(let i=1;i<sorted.length;i++){
+      const diff=(new Date(sorted[i])-new Date(sorted[i-1]))/(864e5);
+      gaps.push(diff);
+    }
+    const avgGap=gaps.reduce((a,b)=>a+b,0)/gaps.length;
+    const lastSeen=new Date(sorted[sorted.length-1]);
+    const daysSinceLast=(now-lastSeen)/(864e5);
+    // Overdue score: how far past avg gap we are (higher = more overdue)
+    const overdueRatio=daysSinceLast/Math.max(avgGap,1);
+    // Boost for numbers that appear on this day of week
+    const dayData=dm[tName]||{};
+    const dayBoost=dayData[n]?1.3:1.0;
+    candidates.push({n, overdueRatio, avgGap:Math.round(avgGap), daysSinceLast:Math.round(daysSinceLast), dayBoost});
+  });
+  // Also include single-appearance numbers that have been absent longest
+  Object.entries(numDates).forEach(([n,dates])=>{
+    const sorted=[...new Set(dates)].sort();
+    if(sorted.length!==1)return;
+    const lastSeen=new Date(sorted[0]);
+    const daysSinceLast=(now-lastSeen)/(864e5);
+    const dayData=dm[tName]||{};
+    const dayBoost=dayData[n]?1.2:1.0;
+    // Treat as overdue after 7 days
+    candidates.push({n, overdueRatio:(daysSinceLast/7)*0.5, avgGap:null, daysSinceLast:Math.round(daysSinceLast), dayBoost});
+  });
+  candidates.sort((a,b)=>(b.overdueRatio*b.dayBoost)-(a.overdueRatio*a.dayBoost));
+  const top=candidates.slice(0,5);
+  const maxScore=Math.max(...top.map(c=>c.overdueRatio*c.dayBoost),0.001);
+  const result=top.map(c=>[c.n, Math.round((c.overdueRatio*c.dayBoost/maxScore)*100), c.avgGap, c.daysSinceLast]);
+  return {tName, result};
+}
+
+// Strategy 3: Tail Momentum — numbers whose last-2-digit tail has been hottest in the most recent sessions
+// Returns top 5 [num, score, tail, recentHits]
+function stratTailMomentum(dm, targetDate){
+  const tName=DAYS[targetDate.getDay()];
+  // Score each tail by recency-weighted hit count (recent days worth more)
+  const now=targetDate;
+  const tailScore={};
+  const tailLastSeen={};
+  db.entries.forEach(e=>{
+    const t=tail2(e.num);
+    const age=Math.max(0,(now-new Date(e.date+'T12:00'))/(864e5));
+    const w=Math.exp(-age/21); // decay over ~3 weeks
+    tailScore[t]=(tailScore[t]||0)+w;
+    if(!tailLastSeen[t]||e.date>tailLastSeen[t])tailLastSeen[t]=e.date;
+  });
+  // For this day's data, boost tails that appear on this day
+  const dayData=dm[tName]||{};
+  const dayTails={};
+  Object.entries(dayData).forEach(([n])=>{const t=tail2(n);dayTails[t]=(dayTails[t]||0)+1});
+
+  // Now pick actual numbers from db that match top tails, preferring ones not seen very recently
+  const numDates={};
+  db.entries.forEach(e=>{
+    if(!numDates[e.num])numDates[e.num]=[];
+    numDates[e.num].push(e.date);
+  });
+
+  // Rank tails by momentum score
+  const sortedTails=Object.entries(tailScore).sort((a,b)=>b[1]-a[1]);
+  const maxTS=sortedTails.length?sortedTails[0][1]:1;
+
+  const candidates=[];
+  sortedTails.forEach(([t,ts])=>{
+    const dayBoost=dayTails[t]?1.25:1.0;
+    const finalScore=(ts/maxTS)*100*dayBoost;
+    // Find the best representative number for this tail
+    // prefer numbers seen on this day of week
+    const dayNums=Object.keys(dayData).filter(n=>tail2(n)===t);
+    const allNums=[...new Set(db.entries.filter(e=>tail2(e.num)===t).map(e=>e.num))];
+    const repNum=dayNums.length?dayNums.sort((a,b)=>(dayData[b]||0)-(dayData[a]||0))[0]
+      :allNums.sort((a,b)=>(numDates[b]||[]).length-(numDates[a]||[]).length)[0];
+    if(!repNum)return;
+    const recentHits=db.entries.filter(e=>{
+      const age=(now-new Date(e.date+'T12:00'))/(864e5);
+      return tail2(e.num)===t&&age<=21;
+    }).length;
+    candidates.push([repNum, Math.round(finalScore), t, recentHits]);
+  });
+
+  const result=candidates.slice(0,5);
+  return {tName, result};
+}
+
+function renderDayPredBlock(targetDate, label, isToday){
+  const dm=dayMap();
+  const tName=DAYS[targetDate.getDay()];
+  const dateLabel=targetDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const sessions=[...new Set(db.entries.filter(e=>dayName(e.date)===tName).map(e=>e.date))].length;
+
+  const s1=stratDayFrequency(dm, targetDate);
+  const s2=stratGapRecency(dm, targetDate);
+  const s3=stratTailMomentum(dm, targetDate);
+
+  const accentColor=isToday?'var(--acc)':'var(--tel)';
+  const accentBorder=isToday?'rgba(124,106,247,.35)':'rgba(0,212,168,.3)';
+
+  let html=`<div class="pred-hdr" style="margin-bottom:18px;border-color:${accentBorder}">
+    <div>
+      <div class="pday-name" style="color:${accentColor}">${tName}</div>
+      <div class="pday-sub">${label} · ${dateLabel}</div>
+    </div>
+    <div class="pbased" style="${isToday?'':'background:rgba(0,212,168,.1);border-color:rgba(0,212,168,.25);color:var(--tel)'}">${sessions} past ${tName}${sessions!==1?'s':''}</div>
+  </div>`;
+
+  if(!s1.result.length&&!s2.result.length&&!s3.result.length){
+    html+=`<div class="notice">No data for ${tName} yet. Add numbers on a ${tName} to enable predictions.</div>`;
+    return html;
+  }
+
+  html+=`<div class="pred-strategies">`;
+
+  // Strategy 1 block
+  html+=`<div class="strat-block">
+    <div class="strat-title s1">🎯 Strategy 1 — Day Frequency</div>
+    <div class="strat-desc">Numbers that appear most often on <strong>${tName}s</strong>, weighted with their overall frequency.</div>
+    <div class="pred-5">`;
+  if(s1.result.length){
+    const maxS1=s1.result[0][1]||1;
+    s1.result.forEach(([n,score],i)=>{
+      html+=`<div class="p5row">
+        <div class="p5rank">#${i+1}</div>
+        <div class="p5num">${n}</div>
+        <div class="p5bar-wrap"><div class="p5fill" style="width:${Math.round(score/maxS1*100)}%"></div></div>
+        <div class="p5conf">${score}%</div>
+      </div>`;
+    });
+  } else {
+    html+=`<div style="font-size:12px;color:var(--txt3)">Not enough day data.</div>`;
+  }
+  html+=`</div>
+    <div class="strat-note">📌 Picks numbers with strongest historical presence on <em>${tName}s</em>. Best when you have many sessions on this day.</div>
+  </div>`;
+
+  // Strategy 2 block
+  html+=`<div class="strat-block">
+    <div class="strat-title s2">⏱ Strategy 2 — Overdue / Gap</div>
+    <div class="strat-desc">Numbers past their average return gap — statistically <strong>due</strong> to reappear soon.</div>
+    <div class="pred-5">`;
+  if(s2.result.length){
+    const maxS2=s2.result[0][1]||1;
+    s2.result.forEach(([n,score,avgGap,daysSince],i)=>{
+      html+=`<div class="p5row s2first">
+        <div class="p5rank">#${i+1}</div>
+        <div class="p5num">${n}</div>
+        <div class="p5bar-wrap"><div class="p5fill s2" style="width:${Math.round(score/maxS2*100)}%"></div></div>
+        <div class="p5conf" title="${daysSince}d since last seen${avgGap?' · avg gap '+avgGap+'d':''}">${daysSince}d ago</div>
+      </div>`;
+    });
+  } else {
+    html+=`<div style="font-size:12px;color:var(--txt3)">Need 2+ entries per number.</div>`;
+  }
+  html+=`</div>
+    <div class="strat-note">📌 Identifies numbers "overdue" based on their personal return rhythm. Works best with 10+ days of data.</div>
+  </div>`;
+
+  // Strategy 3 block
+  html+=`<div class="strat-block">
+    <div class="strat-title" style="color:var(--rose)">🔥 Strategy 3 — Tail Momentum</div>
+    <div class="strat-desc">Numbers whose last-2-digit tail has been <strong>hottest in the past 3 weeks</strong>, with a bonus for tails that favour <strong>${tName}s</strong>.</div>
+    <div class="pred-5">`;
+  if(s3.result.length){
+    const maxS3=s3.result[0][1]||1;
+    s3.result.forEach(([n,score,t,recentHits],i)=>{
+      html+=`<div class="p5row" style="--fill-color:var(--rose)">
+        <div class="p5rank">#${i+1}</div>
+        <div class="p5num">${n}</div>
+        <div class="p5bar-wrap"><div class="p5fill" style="width:${Math.round(score/maxS3*100)}%;background:var(--rose)"></div></div>
+        <div class="p5conf" style="color:var(--rose)" title="tail ..${t} · ${recentHits} hits in 21d">..${t} ×${recentHits}</div>
+      </div>`;
+    });
+  } else {
+    html+=`<div style="font-size:12px;color:var(--txt3)">Not enough data yet.</div>`;
+  }
+  html+=`</div>
+    <div class="strat-note">📌 Tracks which tail digits are on a hot streak recently. Best signal when data spans several weeks.</div>
+  </div>`;
+
+  html+=`</div>`; // end .pred-strategies
+  return html;
+}
+
+function renderPredict(){
+  const el=document.getElementById('pred-content');
+  const dm=dayMap();
+  if(!Object.keys(dm).length){el.innerHTML='<div class="notice">Add numbers to multiple dates to unlock predictions.</div>';return}
+  const today=new Date();
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+
+  let html=`<div class="pred-day-divider" style="margin-top:0">
+    <div class="pred-day-divider-line"></div>
+    <div class="pred-day-divider-badge today">✨ TODAY</div>
+    <div class="pred-day-divider-line"></div>
+  </div>`;
+  html+=renderDayPredBlock(today,'Today',true);
+
+  html+=`<div class="pred-day-divider">
+    <div class="pred-day-divider-line"></div>
+    <div class="pred-day-divider-badge tomorrow">🔮 TOMORROW</div>
+    <div class="pred-day-divider-line"></div>
+  </div>`;
+  html+=renderDayPredBlock(tomorrow,'Tomorrow',false);
+
+  el.innerHTML=html;
+}
+
+/* ── RANGE MATCH STATE ── */
+let rmScoreMode='tail';   // 'tail' | 'combo' | 'recency'
+let rmTopN=10;
+let rmDayFocus='All';
+let rmPicked=new Set();
+
+function setPreset(from,to){
+  document.getElementById('r-from').value=from;
+  document.getElementById('r-to').value=to;
+}
+function setRmScore(mode,el){
+  rmScoreMode=mode;
+  document.querySelectorAll('[id^="rm-score-"]').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+}
+function setRmTop(n,el){
+  rmTopN=n;
+  document.querySelectorAll('[id^="rm-top-"]').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+}
+function setRmDay(day,el){
+  rmDayFocus=day;
+  document.querySelectorAll('[id^="rm-day-"]').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+}
+function togglePick(num){
+  if(rmPicked.has(num))rmPicked.delete(num);else rmPicked.add(num);
+  renderPickedBasket();
+  // update pick button state inside results
+  document.querySelectorAll('.mpick').forEach(btn=>{
+    const n=parseInt(btn.dataset.num);
+    btn.classList.toggle('picked',rmPicked.has(n));
+    btn.textContent=rmPicked.has(n)?'★':'☆';
+  });
+  document.querySelectorAll('.mitem').forEach(item=>{
+    const n=parseInt(item.dataset.num);
+    item.classList.toggle('picked',rmPicked.has(n));
+  });
+}
+function clearPicks(){
+  rmPicked.clear();
+  renderPickedBasket();
+  document.querySelectorAll('.mpick').forEach(btn=>{btn.classList.remove('picked');btn.textContent='☆'});
+  document.querySelectorAll('.mitem').forEach(item=>item.classList.remove('picked'));
+}
+function renderPickedBasket(){
+  const basket=document.getElementById('picked-basket');
+  const chips=document.getElementById('picked-chips');
+  const cnt=document.getElementById('picked-count');
+  if(!rmPicked.size){basket.classList.remove('on');return}
+  basket.classList.add('on');
+  cnt.textContent=rmPicked.size;
+  const sorted=[...rmPicked].sort((a,b)=>a-b);
+  chips.innerHTML=sorted.map(n=>`
+    <div class="picked-chip">${n}<span class="px" onclick="togglePick(${n})">✕</span></div>
+  `).join('');
+}
+
+/* ── RANGE MATCH ── */
+function runMatch(){
+  const fv=document.getElementById('r-from').value.trim();
+  const tv=document.getElementById('r-to').value.trim();
+  const el=document.getElementById('match-out');
+  if(!fv||!tv){el.innerHTML='<div class="notice">Fill in both From and To fields.</div>';return}
+  const from=parseInt(fv),to=parseInt(tv);
+  if(isNaN(from)||isNaN(to)||from<1000||to>9999||String(from).length>4||String(to).length>4){
+    el.innerHTML='<div class="notice">Both numbers must be between 1000 and 9999.</div>';return}
+  if(from>to){el.innerHTML='<div class="notice">From must be ≤ To.</div>';return}
+  if(!db.entries.length){el.innerHTML='<div class="notice">No stored numbers yet. Add some in Track first.</div>';return}
+
+  const tcm=tailCountMap();
+  const totalTailCounts=Object.values(tcm).reduce((a,b)=>a+b,0)||1;
+  const cm=countMap();
+
+  // Day-weighted tail count map
+  const dayTailMap={};
+  db.entries.forEach(e=>{
+    const dn=dayName(e.date);
+    const t=tail2(e.num);
+    if(!dayTailMap[dn])dayTailMap[dn]={};
+    dayTailMap[dn][t]=(dayTailMap[dn][t]||0)+1;
+  });
+
+  // Recency score: weight recent entries more
+  const now=new Date();
+  const recencyTailScore={};
+  db.entries.forEach(e=>{
+    const t=tail2(e.num);
+    const age=(now-new Date(e.date+'T12:00'))/(1000*60*60*24);
+    const weight=Math.exp(-age/60); // decay over 60 days
+    recencyTailScore[t]=(recencyTailScore[t]||0)+weight;
+  });
+  const maxRecency=Math.max(...Object.values(recencyTailScore),1);
+
+  // Build results
+  const results=[];
+  for(let n=from;n<=to;n++){
+    const t=String(n).slice(-2);
+    const cnt=tcm[t]||0;
+    if(cnt===0)continue;
+
+    const pct=Math.round(cnt/totalTailCounts*100);
+    const srcNums=db.entries.filter(e=>tail2(e.num)===t).map(e=>e.num);
+    const srcUniq=[...new Set(srcNums)];
+
+    // Day-specific count
+    const dayCnt=(rmDayFocus!=='All'&&dayTailMap[rmDayFocus])?
+      (dayTailMap[rmDayFocus][t]||0):cnt;
+    if(rmDayFocus!=='All'&&dayCnt===0)continue;
+
+    // Recency score for this tail
+    const recScore=(recencyTailScore[t]||0)/maxRecency;
+
+    // Exact number match bonus (if this exact number was tracked)
+    const exactBonus=(cm[String(n)]||0);
+
+    // Composite score
+    let score;
+    if(rmScoreMode==='tail') score=cnt;
+    else if(rmScoreMode==='recency') score=recScore*100+(cnt*0.3);
+    else score=(cnt/totalTailCounts*60)+(recScore*25)+(exactBonus*15);
+
+    // Best day for this tail
+    let bestDay='—',bestDayCnt=0;
+    DAYS.forEach(d=>{
+      const dc=(dayTailMap[d]&&dayTailMap[d][t])||0;
+      if(dc>bestDayCnt){bestDayCnt=dc;bestDay=d.slice(0,3)}
+    });
+
+    results.push({num:n,tail:t,count:rmDayFocus!=='All'?dayCnt:cnt,rawCount:cnt,pct,srcUniq,recScore,exactBonus,score,bestDay,bestDayCnt});
+  }
+
+  results.sort((a,b)=>b.score-a.score||b.rawCount-a.rawCount);
+  if(!results.length){el.innerHTML=`<div class="notice">No matches found in range ${fv}–${tv}${rmDayFocus!=='All'?' for '+rmDayFocus:''}.</div>`;return}
+
+  const shown=results.slice(0,rmTopN);
+  const maxScore=shown[0].score||1;
+  const tailsInRange=[...new Set(results.map(r=>r.tail))].sort((a,b)=>(tcm[b]||0)-(tcm[a]||0));
+
+  // ── Summary stats ──
+  const matchCount=results.length;
+  const coveredTails=tailsInRange.length;
+  const totalTailW=tailsInRange.reduce((s,t)=>s+(tcm[t]||0),0);
+  const coveragePct=Math.round(totalTailW/totalTailCounts*100);
+  const topScore=shown[0].rawCount;
+
+  let html=`
+  <div class="rm-stats-row">
+    <div class="rm-stat"><div class="rm-stat-num">${matchCount}</div><div class="rm-stat-lbl">Numbers in range</div></div>
+    <div class="rm-stat"><div class="rm-stat-num">${coveredTails}</div><div class="rm-stat-lbl">Unique tails</div></div>
+    <div class="rm-stat"><div class="rm-stat-num">${coveragePct}%</div><div class="rm-stat-lbl">Data coverage</div></div>
+    <div class="rm-stat"><div class="rm-stat-num" style="color:var(--amb)">×${topScore}</div><div class="rm-stat-lbl">Top tail hits</div></div>
+  </div>`;
+
+  // ── Tail frequency pills (clickable filter) ──
+  html+=`<div class="range-info">📌 Range ${fv} – ${tv} &bull; ${matchCount} number${matchCount!==1?'s':''} &bull; ${rmScoreMode==='tail'?'Tail score':rmScoreMode==='recency'?'Recency boost':'Combined score'}${rmDayFocus!=='All'?' · '+rmDayFocus+' focus':''}</div>`;
+  html+=`<div class="sh">Last-2-digit tail coverage</div><div class="tail-summary">`;
+  tailsInRange.forEach(t=>{
+    html+=`<div class="tail-pill" title="Click to jump to first match" onclick="jumpToTail('${t}')">
+      <span class="tdig">${t}</span>
+      <span class="tcnt">×${tcm[t]||0}</span>
+    </div>`;
+  });
+  html+=`</div>`;
+
+  // ── Spread heatmap (visual grid of range) ──
+  if((to-from)<=200){
+    html+=`<div class="rm-tail-section">
+      <div class="rm-tail-title">📊 Range spread — colour = tail strength</div>
+      <div class="spread-grid" id="spread-grid">`;
+    for(let n=from;n<=to;n++){
+      const t=String(n).slice(-2);
+      const c=tcm[t]||0;
+      const pct=maxScore>0?Math.round(c/maxScore*100):0;
+      const hasmatch=c>0;
+      const isPicked=rmPicked.has(n);
+      if(hasmatch){
+        const bg=`rgba(91,141,238,${0.08+pct/100*0.85})`;
+        html+=`<div class="spread-cell has${isPicked?' spread-picked':''}" 
+          style="background:${bg};color:rgba(255,255,255,${0.4+pct/100*0.6})"
+          title="${n} (tail ..${t}, ×${c})"
+          onclick="togglePick(${n})">${n}</div>`;
+      } else {
+        html+=`<div class="spread-cell" style="background:var(--bdr);color:var(--txt3);opacity:.3" title="${n} — no tail data">${n}</div>`;
+      }
+    }
+    html+=`</div><div style="font-size:10px;color:var(--txt3);margin-top:6px">💡 Click any cell to pick it. Darker = stronger tail. Teal border = picked.</div></div>`;
+  }
+
+  // ── Ranked results list ──
+  html+=`<div class="sh">Top ${shown.length} ranked numbers</div>`;
+  shown.forEach((r,i)=>{
+    const rankClass=i===0?'g':i===1?'s':i===2?'b':'n';
+    const itemClass=i===0?' rank1':i===1?' rank2':i===2?' rank3':'';
+    const isPicked=rmPicked.has(r.num);
+    const barW=Math.round(r.score/maxScore*100);
+    const barColor=i===0?'var(--acc)':i===1?'var(--tel)':i===2?'var(--amb)':'var(--bdr2)';
+    const recBar=Math.round(r.recScore*100);
+    html+=`<div class="mitem${itemClass}${isPicked?' picked':''}" data-num="${r.num}" id="mitem-${r.num}" onclick="">
+      <div class="mrank ${rankClass}">${i+1}</div>
+      <div class="mnum">${r.num}</div>
+      <div class="mtail-badge">..${r.tail}</div>
+      <div class="mdetail">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="mscore">×${r.rawCount}</span>
+          <span style="font-size:11px;color:var(--txt3)">${r.pct}% of tails</span>
+          ${r.exactBonus?`<span style="font-size:10px;background:rgba(31,184,154,.12);border:1px solid rgba(31,184,154,.2);color:var(--tel);border-radius:6px;padding:2px 6px">exact ×${r.exactBonus}</span>`:''}
+          <span style="font-size:10px;color:var(--txt3)">best: ${r.bestDay}</span>
+        </div>
+        <div class="mbar-wrap">
+          <div class="mbar"><div class="mfill" style="width:${barW}%;background:${barColor}"></div></div>
+          <span style="font-size:9px;color:var(--txt3);width:32px;text-align:right">${Math.round(r.score)}</span>
+        </div>
+        ${rmScoreMode!=='tail'?`<div style="display:flex;align-items:center;gap:6px;margin-top:4px"><span style="font-size:9px;color:var(--txt3)">Recency</span><div style="flex:1;height:3px;background:var(--bdr);border-radius:2px;overflow:hidden"><div style="height:100%;width:${recBar}%;background:var(--amb);border-radius:2px"></div></div></div>`:''}
+        <div class="msrc" id="t${r.num}">From: ${r.srcUniq.slice(0,6).join(', ')}${r.srcUniq.length>6?'…':''}</div>
+      </div>
+      <button class="mpick${isPicked?' picked':''}" data-num="${r.num}" onclick="event.stopPropagation();togglePick(${r.num})" title="Pick this number">${isPicked?'★':'☆'}</button>
+    </div>`;
+  });
+
+  if(results.length>rmTopN){
+    html+=`<div style="text-align:center;padding:12px;font-size:12px;color:var(--txt3)">${results.length-rmTopN} more numbers not shown — increase "Show top" to see all</div>`;
+  }
+
+  el.innerHTML=html;
+}
+
+function jumpToTail(t){
+  // highlight first mitem with that tail
+  const items=document.querySelectorAll('.mitem');
+  for(const item of items){
+    const num=parseInt(item.dataset.num);
+    if(!isNaN(num)&&String(num).slice(-2)===t){
+      item.scrollIntoView({behavior:'smooth',block:'center'});
+      item.style.outline='2px solid var(--acc)';
+      setTimeout(()=>item.style.outline='',1200);
+      return;
+    }
+  }
+}
+
+/* ── NAV ── */
+function goTab(i){
+  document.querySelectorAll('.nav-item').forEach((n,j)=>n.classList.toggle('act',i===j));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('on',i===j));
+  document.getElementById('page-title').textContent=PAGE_TITLES[i];
+  document.getElementById('main-content').scrollTop=0;
+  if(i===1){renderDashExtras();renderStats();}
+  if(i===2)renderHistory();
+  if(i===3)renderPredict();
+  if(i===4){document.getElementById('match-out').innerHTML='';}
+  if(i===5)renderPatterns();
+}
+
+/* ── PATTERNS & RELATIONS ── */
+function renderPatterns(){
+  const el=document.getElementById('patterns-content');
+  if(!db.entries.length){
+    el.innerHTML='<div class="notice">Add numbers across multiple dates to unlock pattern analysis.</div>';
+    return;
+  }
+  const cm=countMap();
+  const sortedByDate=db.entries.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const uniqueDates=[...new Set(sortedByDate.map(e=>e.date))].sort();
+  const dm=dayMap();
+
+  // ── 1. Number frequency insights ──
+  const allEntries=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
+  const top5=allEntries.slice(0,5);
+  const bottom5=allEntries.slice(-5).reverse();
+  const totalEntries=db.entries.length;
+  const avgFreq=(totalEntries/Math.max(Object.keys(cm).length,1)).toFixed(1);
+
+  // ── 2. Gap analysis: how many days between appearances of each number ──
+  const gapData=[];
+  Object.keys(cm).forEach(n=>{
+    const dates=[...new Set(db.entries.filter(e=>e.num===n).map(e=>e.date))].sort();
+    if(dates.length<2)return;
+    const gaps=[];
+    for(let i=1;i<dates.length;i++){
+      const d1=new Date(dates[i-1]+'T12:00');
+      const d2=new Date(dates[i]+'T12:00');
+      gaps.push(Math.round((d2-d1)/(1000*60*60*24)));
+    }
+    const avgGap=(gaps.reduce((a,b)=>a+b,0)/gaps.length).toFixed(1);
+    const minGap=Math.min(...gaps);
+    gapData.push({n,avgGap:parseFloat(avgGap),minGap,dates:dates.length});
+  });
+  gapData.sort((a,b)=>a.avgGap-b.avgGap);
+  const maxGap=gapData.length?Math.max(...gapData.slice(0,8).map(g=>g.avgGap)):1;
+
+  // ── 3. Day-of-week preference per number ──
+  const numDayPref={};
+  Object.keys(cm).forEach(n=>{
+    const dayCounts={};
+    db.entries.filter(e=>e.num===n).forEach(e=>{
+      const dn=dayName(e.date);
+      dayCounts[dn]=(dayCounts[dn]||0)+1;
+    });
+    const best=Object.entries(dayCounts).sort((a,b)=>b[1]-a[1])[0];
+    if(best&&cm[n]>=2)numDayPref[n]={day:best[0],count:best[1],total:cm[n]};
+  });
+
+  // ── 4. Co-occurrence: which numbers appear on the same date together ──
+  const coMap={};
+  uniqueDates.forEach(date=>{
+    const nums=[...new Set(db.entries.filter(e=>e.date===date).map(e=>e.num))];
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        const key=[nums[i],nums[j]].sort().join('↔');
+        coMap[key]=(coMap[key]||0)+1;
+      }
+    }
+  });
+  const coPairs=Object.entries(coMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+  // ── 5. Trend: is the number going up/down/stable over time? ──
+  let trendHtml='';
+  if(uniqueDates.length>=4){
+    const half=Math.floor(uniqueDates.length/2);
+    const firstHalf=uniqueDates.slice(0,half);
+    const secondHalf=uniqueDates.slice(half);
+    const avgFirst=db.entries.filter(e=>firstHalf.includes(e.date)&&!isNaN(Number(e.num)))
+      .reduce((s,e,_,a)=>s+Number(e.num)/a.length,0);
+    const avgSecond=db.entries.filter(e=>secondHalf.includes(e=>secondHalf.includes(e.date))&&!isNaN(Number(e.num)))
+      .reduce((s,e,_,a)=>s+Number(e.num)/a.length,0);
+    const nums1=db.entries.filter(e=>firstHalf.includes(e.date)&&!isNaN(Number(e.num)));
+    const nums2=db.entries.filter(e=>secondHalf.includes(e.date)&&!isNaN(Number(e.num)));
+    const avg1=nums1.length?nums1.reduce((s,e)=>s+Number(e.num),0)/nums1.length:0;
+    const avg2=nums2.length?nums2.reduce((s,e)=>s+Number(e.num),0)/nums2.length:0;
+    const diff=avg2-avg1;
+    const direction=Math.abs(diff)<10?'stable':diff>0?'trending up ↑':'trending down ↓';
+    const color=Math.abs(diff)<10?'var(--txt3)':diff>0?'var(--tel)':'var(--red)';
+    trendHtml=`<div class="pat-section">
+      <div class="pat-title">📈 Value Trend Over Time</div>
+      <div class="pat-sub">Compares the average number value in the first half of your tracked dates vs the second half.</div>
+      <div class="pat-grid">
+        <div class="pat-mini"><div class="pat-mini-num">${Math.round(avg1)}</div><div class="pat-mini-lbl">First half avg</div></div>
+        <div class="pat-mini"><div class="pat-mini-num" style="color:${color}">${Math.round(avg2)}</div><div class="pat-mini-lbl">Second half avg</div></div>
+        <div class="pat-mini"><div class="pat-mini-num" style="color:${color};font-size:13px">${direction}</div><div class="pat-mini-lbl">Trend</div></div>
+      </div>
+    </div>`;
+  }
+
+  // ── 6. Numbers appearing only on specific days ──
+  const dayExclusive=[];
+  Object.entries(numDayPref).forEach(([n,{day,count,total}])=>{
+    const ratio=count/total;
+    if(ratio>=0.8&&total>=2)dayExclusive.push({n,day,count,total,ratio});
+  });
+  dayExclusive.sort((a,b)=>b.ratio-a.ratio);
+
+  // ── 7. Date digit correlation ──
+  // Check if day-of-month correlates with last digit of number
+  const dayDigitMap={};
+  db.entries.forEach(e=>{
+    const dom=new Date(e.date+'T12:00').getDate();
+    const lastDigit=String(e.num).slice(-1);
+    const key=`day${dom%10}→tail${lastDigit}`;
+    dayDigitMap[key]=(dayDigitMap[key]||0)+1;
+  });
+  const ddCorr=Object.entries(dayDigitMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // BUILD HTML
+  let html='';
+
+  // Insights
+  html+=`<div class="pat-section">
+    <div class="pat-title">💡 Key Insights</div>
+    <div class="pat-sub">Automated pattern findings from your tracked data.</div>`;
+
+  if(top5.length){
+    html+=`<div class="pat-insight hot">🔥 Top number: <strong>${top5[0][0]}</strong> appeared <strong>${top5[0][1]}</strong> times — ${Math.round(top5[0][1]/totalEntries*100)}% of all entries.</div>`;
+  }
+  if(gapData.length){
+    const fastest=gapData[0];
+    html+=`<div class="pat-insight">⚡ Fastest repeating: <strong>${fastest.n}</strong> returns on average every <strong>${fastest.avgGap} days</strong>.</div>`;
+  }
+  if(dayExclusive.length){
+    const ex=dayExclusive[0];
+    html+=`<div class="pat-insight warn">📌 <strong>${ex.n}</strong> appears almost exclusively on <strong>${ex.day}s</strong> (${Math.round(ex.ratio*100)}% of appearances).</div>`;
+  }
+  if(coPairs.length){
+    const [pair,cnt]=coPairs[0];
+    html+=`<div class="pat-insight">🔗 Most co-occurring pair: <strong>${pair.replace('↔',' & ')}</strong> appear together on <strong>${cnt}</strong> date(s).</div>`;
+  }
+  const streakNums=Object.entries(cm).filter(([,c])=>c>=5);
+  if(streakNums.length){
+    html+=`<div class="pat-insight hot">📊 <strong>${streakNums.length}</strong> number${streakNums.length>1?'s':''} appear 5+ times — these are your strongest signals.</div>`;
+  }
+  html+=`</div>`;
+
+  // Gap analysis
+  if(gapData.length){
+    html+=`<div class="pat-section">
+      <div class="pat-title">⏱ Return Gap Analysis</div>
+      <div class="pat-sub">Average number of days between each number reappearing. Lower = more frequent repeater.</div>`;
+    gapData.slice(0,8).forEach(({n,avgGap,minGap})=>{
+      const barW=Math.round(avgGap/maxGap*100);
+      html+=`<div class="gap-row">
+        <div class="gap-num">${n}</div>
+        <div class="gap-val">~${avgGap}d</div>
+        <div class="gap-bar"><div class="gap-fill" style="width:${barW}%"></div></div>
+        <div style="font-size:10px;color:var(--txt3);width:55px;text-align:right">min ${minGap}d</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Co-occurrence
+  if(coPairs.length){
+    html+=`<div class="pat-section">
+      <div class="pat-title">🔗 Co-occurrence (Same-Date Pairs)</div>
+      <div class="pat-sub">Numbers that tend to appear on the same date together. Strong pairs may signal a relationship.</div>`;
+    const maxCo=coPairs[0][1];
+    coPairs.forEach(([pair,cnt])=>{
+      const pct=Math.round(cnt/maxCo*100);
+      html+=`<div class="corr-row">
+        <div class="corr-pair">${pair.replace('↔',' & ')}</div>
+        <div class="corr-bar"><div class="corr-fill" style="width:${pct}%"></div></div>
+        <div class="corr-score">×${cnt}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Day preference
+  if(dayExclusive.length){
+    html+=`<div class="pat-section">
+      <div class="pat-title">📅 Day-of-Week Preference</div>
+      <div class="pat-sub">Numbers that appear predominantly on a specific day of the week.</div>`;
+    dayExclusive.slice(0,6).forEach(({n,day,count,total,ratio})=>{
+      html+=`<div class="corr-row">
+        <div class="corr-pair" style="font-family:'JetBrains Mono',monospace">${n}</div>
+        <div style="font-size:11px;color:var(--txt2);flex:1">${day} (${count}/${total})</div>
+        <div class="corr-score" style="color:var(--amb)">${Math.round(ratio*100)}%</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Date digit correlation
+  if(ddCorr.length&&ddCorr[0][1]>1){
+    html+=`<div class="pat-section">
+      <div class="pat-title">🔢 Date-Digit Correlation</div>
+      <div class="pat-sub">Checks whether the last digit of the calendar day relates to the last digit of numbers entered on that day.</div>`;
+    const maxDD=ddCorr[0][1];
+    ddCorr.forEach(([key,cnt])=>{
+      const [dm,tn]=key.split('→');
+      html+=`<div class="corr-row">
+        <div class="corr-pair">${dm.replace('day','Day ends in ')} → ${tn.replace('tail','number ends in ')}</div>
+        <div class="corr-bar"><div class="corr-fill" style="width:${Math.round(cnt/maxDD*100)}%;background:var(--acc)"></div></div>
+        <div class="corr-score" style="color:var(--acc)">×${cnt}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Trend
+  html+=trendHtml;
+
+  // Number value distribution
+  const numericEntries=db.entries.filter(e=>!isNaN(Number(e.num))).map(e=>Number(e.num));
+  if(numericEntries.length>=4){
+    const sorted=numericEntries.slice().sort((a,b)=>a-b);
+    const min=sorted[0],max=sorted[sorted.length-1];
+    const mean=Math.round(numericEntries.reduce((a,b)=>a+b,0)/numericEntries.length);
+    const mid=sorted[Math.floor(sorted.length/2)];
+    // bucket into 5 ranges
+    const range=max-min||1;
+    const buckets=Array(5).fill(0);
+    numericEntries.forEach(n=>{
+      const bi=Math.min(4,Math.floor((n-min)/range*5));
+      buckets[bi]++;
+    });
+    const maxB=Math.max(...buckets);
+    html+=`<div class="pat-section">
+      <div class="pat-title">🎲 Number Value Distribution</div>
+      <div class="pat-sub">How your entered numbers spread across the value range.</div>
+      <div class="pat-grid" style="margin-bottom:14px">
+        <div class="pat-mini"><div class="pat-mini-num">${min}</div><div class="pat-mini-lbl">Min</div></div>
+        <div class="pat-mini"><div class="pat-mini-num">${mean}</div><div class="pat-mini-lbl">Mean</div></div>
+        <div class="pat-mini"><div class="pat-mini-num">${max}</div><div class="pat-mini-lbl">Max</div></div>
+      </div>`;
+    buckets.forEach((cnt,i)=>{
+      const lo=Math.round(min+i*(range/5));
+      const hi=Math.round(min+(i+1)*(range/5));
+      html+=`<div class="tail-freq-row">
+        <div class="tail-freq-lbl" style="width:90px;font-size:10px">${lo}–${hi}</div>
+        <div class="tail-freq-bar"><div class="tail-freq-fill" style="width:${maxB?Math.round(cnt/maxB*100):0}%;background:var(--acc2)"></div></div>
+        <div class="tail-freq-cnt">×${cnt}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  el.innerHTML=html||'<div class="notice">Not enough data for pattern analysis. Add more numbers across different dates.</div>';
+}
+
+/* ── TOAST ── */
+let toastTimer=null;
+function showToast(msg,type=''){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type?' '+type:'');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ── CLOCK ── */
+function tickClock(){
+  const now=new Date();
+  const h=now.getHours()%12||12;
+  const m=String(now.getMinutes()).padStart(2,'0');
+  const ampm=now.getHours()>=12?'PM':'AM';
+  document.getElementById('clk').textContent=h+':'+m+' '+ampm;
+}
+setInterval(tickClock,1000);
+tickClock();
+
+/* ── KEYBOARD SHORTCUTS ── */
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA')return;
+  if(e.key>='0'&&e.key<='9')kp(e.key);
+  if(e.key==='Backspace')kp('del');
+  if(e.key==='Enter')addNum();
+});
+
+/* ── INIT ── */
+(function init(){
+  loadData();
+  // set today labels
+  document.getElementById('today-day').textContent=todayName();
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  initDate();
+  renderAll();
+})();
+</script>
+</body>
+</html>

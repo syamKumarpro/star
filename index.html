@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NumTrack Pro — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06070d;
+  --bg2:#0a0d16;
+  --surf:#0f1220;
+  --surf2:#141827;
+  --surf3:#191e30;
+  --bdr:#1e2438;
+  --bdr2:#252d45;
+  --acc:#7c6af7;
+  --acc2:#5e49e8;
+  --acc3:rgba(124,106,247,.13);
+  --tel:#00d4a8;
+  --tel2:rgba(0,212,168,.12);
+  --amb:#ffb84d;
+  --rose:#ff5fa0;
+  --sky:#38bdf8;
+  --red:#f0515a;
+  --grn:#34d399;
+  --txt:#eef0fa;
+  --txt2:#8b97c0;
+  --txt3:#404d70;
+  --r:12px;
+  --g-purple:linear-gradient(135deg,#5e49e8,#9b59f5);
+  --g-teal:linear-gradient(135deg,#00b896,#00d4a8);
+}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'Syne',system-ui,sans-serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  position:relative;
+}
+
+/* Animated background grid */
+.bg-grid{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(124,106,247,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,106,247,.04) 1px, transparent 1px);
+  background-size:40px 40px;
+  animation:gridShift 20s linear infinite;
+}
+@keyframes gridShift{
+  0%{background-position:0 0}
+  100%{background-position:40px 40px}
+}
+
+/* Glowing orbs */
+.orb{
+  position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;
+  animation:float 8s ease-in-out infinite;
+}
+.orb1{
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(94,73,232,.18),transparent 70%);
+  top:-100px;left:-100px;
+  animation-delay:0s;
+}
+.orb2{
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(0,212,168,.12),transparent 70%);
+  bottom:-80px;right:-60px;
+  animation-delay:-4s;
+}
+.orb3{
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(255,95,160,.08),transparent 70%);
+  top:50%;right:15%;
+  animation-delay:-2s;
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-30px) scale(1.05)}
+}
+
+/* Login card */
+.card{
+  position:relative;z-index:10;
+  width:100%;max-width:420px;
+  background:var(--surf);
+  border:1px solid var(--bdr2);
+  border-radius:20px;
+  padding:40px 36px 36px;
+  box-shadow:0 24px 80px rgba(0,0,0,.5),0 0 0 1px rgba(124,106,247,.08);
+  animation:cardIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(24px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Top bar accent */
+.card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--g-purple);
+  border-radius:20px 20px 0 0;
+}
+
+/* Brand header */
+.brand{
+  display:flex;align-items:center;gap:14px;margin-bottom:32px;
+}
+.brand-icon{
+  width:48px;height:48px;border-radius:14px;
+  background:var(--g-purple);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;
+  box-shadow:0 4px 20px rgba(124,106,247,.4);
+  flex-shrink:0;
+}
+.brand-text{}
+.brand-name{font-size:20px;font-weight:800;color:var(--txt);letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:var(--txt3);margin-top:2px;text-transform:uppercase;letter-spacing:.08em}
+
+/* Welcome text */
+.welcome{margin-bottom:28px}
+.welcome h2{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:5px;letter-spacing:-.2px}
+.welcome p{font-size:13px;color:var(--txt3);line-height:1.6}
+
+/* Form */
+.field{margin-bottom:16px}
+.field-label{
+  display:block;font-size:11px;font-weight:700;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+}
+.field-input{
+  width:100%;
+  background:var(--bg2);
+  border:1px solid var(--bdr);
+  border-radius:10px;
+  padding:13px 16px;
+  font-size:15px;
+  color:var(--txt);
+  font-family:'Syne',sans-serif;
+  outline:none;
+  transition:border .15s, box-shadow .15s;
+}
+.field-input::placeholder{color:var(--txt3)}
+.field-input:focus{
+  border-color:var(--acc);
+  box-shadow:0 0 0 3px rgba(124,106,247,.12);
+}
+.field-input.error{
+  border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(240,81,90,.1);
+}
+
+/* Password wrapper with toggle */
+.pw-wrap{position:relative}
+.pw-wrap .field-input{padding-right:48px}
+.pw-toggle{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--txt3);font-size:16px;
+  transition:color .15s;padding:4px;
+}
+.pw-toggle:hover{color:var(--txt2)}
+
+/* Error message */
+.error-msg{
+  display:none;
+  align-items:center;gap:6px;
+  background:rgba(240,81,90,.08);
+  border:1px solid rgba(240,81,90,.25);
+  border-radius:9px;
+  padding:10px 14px;
+  font-size:12px;
+  color:var(--red);
+  margin-bottom:16px;
+  animation:shake .3s ease;
+}
+.error-msg.show{display:flex}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+
+/* Login button */
+.login-btn{
+  width:100%;padding:14px;
+  background:var(--acc2);
+  border:none;
+  border-radius:11px;
+  color:#fff;
+  font-family:'Syne',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:.01em;
+  margin-top:8px;
+  position:relative;overflow:hidden;
+}
+.login-btn:hover{background:var(--acc);transform:translateY(-1px);box-shadow:0 8px 24px rgba(124,106,247,.35)}
+.login-btn:active{transform:translateY(0)}
+.login-btn.loading{pointer-events:none;opacity:.8}
+.btn-spinner{
+  display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+.login-btn.loading .btn-spinner{display:block}
+.login-btn.loading .btn-text{opacity:.7}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Divider */
+.divider{
+  display:flex;align-items:center;gap:12px;
+  margin:20px 0 0;
+}
+.divider-line{flex:1;height:1px;background:var(--bdr)}
+.divider-text{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em}
+
+/* Footer note */
+.login-footer{
+  margin-top:20px;text-align:center;
+  font-size:11px;color:var(--txt3);line-height:1.7;
+}
+.login-footer span{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--acc3);border:1px solid rgba(124,106,247,.2);
+  border-radius:20px;padding:4px 12px;color:var(--acc);font-size:11px;font-weight:600;
+}
+
+/* Version badge */
+.version{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt3);
+  z-index:10;letter-spacing:.06em;
+}
+
+/* Success flash */
+.success-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.success-overlay.show{opacity:1;pointer-events:all}
+.success-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--tel),#00b896);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;margin-bottom:18px;
+  box-shadow:0 8px 32px rgba(0,212,168,.3);
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn{
+  from{transform:scale(0)}
+  to{transform:scale(1)}
+}
+.success-text{font-size:18px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.success-sub{font-size:13px;color:var(--txt3)}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="card">
+  <div class="brand">
+    <div class="brand-icon">🔢</div>
+    <div class="brand-text">
+      <div class="brand-name">NumTrack Pro</div>
+      <div class="brand-sub">Number Intelligence</div>
+    </div>
+  </div>
+
+  <div class="welcome">
+    <h2>Welcome back</h2>
+    <p>Sign in to access your number tracking dashboard.</p>
+  </div>
+
+  <div class="error-msg" id="errMsg">
+    <span>⚠</span>
+    <span id="errText">Invalid credentials. Please try again.</span>
+  </div>
+
+  <div class="field">
+    <label class="field-label" for="username">Username</label>
+    <input class="field-input" id="username" type="text" placeholder="Enter any username" autocomplete="username" autocapitalize="none"/>
+  </div>
+
+  <div class="field">
+    <label class="field-label" for="password">Password</label>
+    <div class="pw-wrap">
+      <input class="field-input" id="password" type="password" placeholder="Enter password" autocomplete="current-password"/>
+      <button class="pw-toggle" id="pwToggle" type="button" onclick="togglePw()" title="Show/hide password">👁</button>
+    </div>
+  </div>
+
+  <button class="login-btn" id="loginBtn" onclick="doLogin()">
+    <div class="btn-spinner" id="btnSpinner"></div>
+    <span class="btn-text">Sign In</span>
+    <span>→</span>
+  </button>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">secure access</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="login-footer">
+    <span>🔒 Private &amp; Offline-first</span>
+  </div>
+</div>
+
+<div class="version">NumTrack Pro v2.0 · GitHub Pages</div>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✓</div>
+  <div class="success-text">Welcome in!</div>
+  <div class="success-sub">Loading your dashboard…</div>
+</div>
+
+<script>
+const CORRECT_PASSWORD = '8055';
+
+function togglePw(){
+  const inp = document.getElementById('password');
+  const btn = document.getElementById('pwToggle');
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+function showError(msg){
+  const err = document.getElementById('errMsg');
+  document.getElementById('errText').textContent = msg;
+  err.classList.add('show');
+  document.getElementById('username').classList.add('error');
+  document.getElementById('password').classList.add('error');
+  // reset after 3s
+  setTimeout(()=>{
+    err.classList.remove('show');
+    document.getElementById('username').classList.remove('error');
+    document.getElementById('password').classList.remove('error');
+  }, 3000);
+}
+
+function doLogin(){
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value;
+
+  if(!user){
+    showError('Please enter a username.');
+    document.getElementById('username').focus();
+    return;
+  }
+  if(!pass){
+    showError('Please enter your password.');
+    document.getElementById('password').focus();
+    return;
+  }
+  if(pass !== CORRECT_PASSWORD){
+    showError('Incorrect password. Please try again.');
+    document.getElementById('password').value = '';
+    document.getElementById('password').focus();
+    return;
+  }
+
+  // Success — show loading
+  const btn = document.getElementById('loginBtn');
+  btn.classList.add('loading');
+  btn.querySelector('.btn-text').textContent = 'Signing in…';
+  btn.querySelector('span:last-child').style.display = 'none';
+
+  setTimeout(()=>{
+    // Show success overlay
+    document.getElementById('successOverlay').classList.add('show');
+    setTimeout(()=>{
+      window.location.href = 'app.html';
+    }, 1200);
+  }, 800);
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter') doLogin();
+});
+
+// Clear errors on typing
+document.getElementById('username').addEventListener('input', ()=>{
+  document.getElementById('errMsg').classList.remove('show');
+  document.getElementById('username').classList.remove('error');
+  document.getElementById('password').classList.remove('error');
+});
+document.getElementById('password').addEventListener('input', ()=>{
+  document.getElementById('errMsg').classList.remove('show');
+  document.getElementById('username').classList.remove('error');
+  document.getElementById('password').classList.remove('error');
+});
+</script>
+</body>
+</html>
