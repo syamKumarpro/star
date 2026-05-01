@@ -6,19 +6,6 @@ A powerful, offline-first number tracking and pattern analysis web application.
 
 > Deployed via GitHub Pages: `https://<your-username>.github.io/<repo-name>/`
 
-## 🔐 Login
-
-- **Username:** Any username works
-- **Password:** `8055`
-
-## ✨ Features
-
-- 📊 Track numbers by date with a clean numeric keypad
-- 📈 Pattern analysis — frequency, streaks, co-occurrence
-- 🔮 Predictions based on historical data
-- 🎯 Range matching tool
-- 📤 Export / Import your data as JSON
-- 🌙 Fully dark-themed, offline-first (data stored in browser localStorage)
 
 ## 📁 File Structure
 
